@@ -4,11 +4,89 @@ import '../models/story_model.dart';
 import '../theme/app_theme.dart';
 import 'story_detail_screen.dart';
 
-class StoriesScreen extends StatelessWidget {
+class StoriesScreen extends StatefulWidget {
   const StoriesScreen({super.key});
 
   @override
+  State<StoriesScreen> createState() => _StoriesScreenState();
+}
+
+class _StoriesScreenState extends State<StoriesScreen> {
+  final TextEditingController _searchController = TextEditingController();
+
+  String selectedCategory = 'Barchasi';
+  String searchText = '';
+
+  List<String> get categories {
+    final unique = storiesList.map((e) => e.category).toSet().toList();
+    unique.sort();
+    return ['Barchasi', ...unique];
+  }
+
+  List<StoryModel> get filteredStories {
+    return storiesList.where((story) {
+      final matchesCategory = selectedCategory == 'Barchasi'
+          ? true
+          : story.category == selectedCategory;
+
+      final query = searchText.trim().toLowerCase();
+
+      final matchesSearch = query.isEmpty
+          ? true
+          : story.title.toLowerCase().contains(query) ||
+          story.shortDescription.toLowerCase().contains(query) ||
+          story.category.toLowerCase().contains(query);
+
+      return matchesCategory && matchesSearch;
+    }).toList();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Widget _buildCategoryChip(String category) {
+    final isSelected = selectedCategory == category;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedCategory = category;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        margin: const EdgeInsets.only(right: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.primaryColor : Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Text(
+          category,
+          style: TextStyle(
+            color: isSelected ? Colors.white : AppTheme.textDark,
+            fontWeight: FontWeight.w800,
+            fontSize: 12.5,
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final items = filteredStories;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ertaklar'),
@@ -65,7 +143,7 @@ class StoriesScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 6),
                         Text(
-                          'Bolalar uchun qiziqarli, tarbiyaviy va mehrga boy ertaklar',
+                          'Bolalar uchun mazmunli va tarbiyaviy ertaklar kutubxonasi',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 13,
@@ -81,10 +159,120 @@ class StoriesScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: _searchController,
+                onChanged: (value) {
+                  setState(() {
+                    searchText = value;
+                  });
+                },
+                decoration: InputDecoration(
+                  hintText: 'Ertak qidirish...',
+                  hintStyle: TextStyle(
+                    color: Colors.grey.shade500,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  suffixIcon: searchText.isNotEmpty
+                      ? IconButton(
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() {
+                        searchText = '';
+                      });
+                    },
+                    icon: const Icon(Icons.close_rounded),
+                  )
+                      : null,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 16,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            height: 42,
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              scrollDirection: Axis.horizontal,
+              children: categories.map(_buildCategoryChip).toList(),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Text(
+                  '${items.length} ta ertak topildi',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textDark,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
           Expanded(
-            child: GridView.builder(
+            child: items.isEmpty
+                ? Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.search_off_rounded,
+                      size: 60,
+                      color: Colors.grey,
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Ertak topilmadi',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: AppTheme.textDark,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Boshqa so‘z bilan qidirib ko‘ring yoki kategoriyani o‘zgartiring',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        height: 1.5,
+                        color: Colors.grey.shade700,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+                : GridView.builder(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-              itemCount: storiesList.length,
+              itemCount: items.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 mainAxisSpacing: 14,
@@ -92,7 +280,7 @@ class StoriesScreen extends StatelessWidget {
                 childAspectRatio: 0.72,
               ),
               itemBuilder: (context, index) {
-                final StoryModel story = storiesList[index];
+                final story = items[index];
 
                 return GestureDetector(
                   onTap: () {
@@ -129,8 +317,6 @@ class StoriesScreen extends StatelessWidget {
                                   Color(0xFFE9FFF9),
                                   Color(0xFFF6FFFC),
                                 ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
                               ),
                             ),
                             child: ClipRRect(

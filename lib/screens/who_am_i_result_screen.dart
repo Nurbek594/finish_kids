@@ -211,6 +211,34 @@ class WhoAmIResultScreen extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.popUntil(context, (route) => route.isFirst);
+                },
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text(
+                  'Qayta boshlash',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppTheme.primaryColor,
+                  side: const BorderSide(
+                    color: AppTheme.primaryColor,
+                    width: 1.4,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

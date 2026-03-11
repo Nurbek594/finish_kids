@@ -64,8 +64,8 @@ class HomeMenuCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    width: 54,
-                    height: 54,
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.22),
                       borderRadius: BorderRadius.circular(18),

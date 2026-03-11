@@ -13,10 +13,11 @@ class StoryDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFFFBF5),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 300,
+            expandedHeight: 310,
             pinned: true,
             backgroundColor: const Color(0xFF28C2A0),
             flexibleSpace: FlexibleSpaceBar(
@@ -122,11 +123,15 @@ class StoryDetailScreen extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
+                      color: const Color(0xFFFFFDF8),
+                      borderRadius: BorderRadius.circular(26),
+                      border: Border.all(
+                        color: const Color(0xFFF1E6C8),
+                        width: 1.2,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
+                          color: Colors.brown.withOpacity(0.04),
                           blurRadius: 14,
                           offset: const Offset(0, 8),
                         ),
@@ -159,14 +164,18 @@ class StoryDetailScreen extends StatelessWidget {
                   const SizedBox(height: 14),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(18),
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
+                      color: const Color(0xFFFFFEFB),
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(
+                        color: const Color(0xFFF1E6C8),
+                        width: 1.2,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
-                          blurRadius: 14,
+                          color: Colors.brown.withOpacity(0.05),
+                          blurRadius: 16,
                           offset: const Offset(0, 8),
                         ),
                       ],
@@ -174,20 +183,29 @@ class StoryDetailScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Ertak matni',
-                          style: TextStyle(
-                            fontSize: 19,
-                            fontWeight: FontWeight.w900,
-                            color: AppTheme.textDark,
-                          ),
+                        const Row(
+                          children: [
+                            Icon(
+                              Icons.menu_book_rounded,
+                              color: Color(0xFFB08968),
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Ertak matni',
+                              style: TextStyle(
+                                fontSize: 19,
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.textDark,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
                         Text(
                           story.content,
                           style: TextStyle(
-                            fontSize: 15.2,
-                            height: 1.85,
+                            fontSize: 16,
+                            height: 1.95,
                             color: Colors.grey.shade800,
                             fontWeight: FontWeight.w600,
                           ),
@@ -223,6 +241,49 @@ class StoryDetailScreen extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                               color: AppTheme.textDark,
                             ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFFF8F1FF),
+                          Color(0xFFFDFBFF),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: const Column(
+                      children: [
+                        Icon(
+                          Icons.auto_awesome_rounded,
+                          color: AppTheme.primaryColor,
+                          size: 28,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Ertak tugadi',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: AppTheme.textDark,
+                          ),
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                          'Yana boshqa ertaklarni ham o‘qib ko‘ring',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black54,
+                            height: 1.4,
                           ),
                         ),
                       ],

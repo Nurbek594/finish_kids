@@ -28,10 +28,10 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
       ? 'Bolaga yoqqan o‘yinchoqlarni tanlang'
       : 'Endi bolaga yoqqan kasblarni tanlang';
 
+  double get progressValue => currentStep == 0 ? 0.5 : 1.0;
+
   bool isSelected(WhoAmIItemModel item) {
-    if (currentStep == 0) {
-      return selectedToys.contains(item);
-    }
+    if (currentStep == 0) return selectedToys.contains(item);
     return selectedJobs.contains(item);
   }
 
@@ -56,11 +56,9 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
   int calculateScore() {
     final allSelected = [...selectedToys, ...selectedJobs];
     int score = 0;
-
     for (final item in allSelected) {
       score += item.score;
     }
-
     return score;
   }
 
@@ -116,6 +114,13 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
     );
   }
 
+  List<String> get selectedTitles {
+    if (currentStep == 0) {
+      return selectedToys.map((e) => e.title).toList();
+    }
+    return selectedJobs.map((e) => e.title).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final selectedCount =
@@ -159,44 +164,75 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                   ),
                 ],
               ),
-              child: Row(
+              child: Column(
                 children: [
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundColor: Colors.white24,
-                    child: Icon(
-                      currentStep == 0
-                          ? Icons.toys_rounded
-                          : Icons.work_rounded,
-                      color: Colors.white,
-                      size: 28,
-                    ),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 28,
+                        backgroundColor: Colors.white24,
+                        child: Icon(
+                          currentStep == 0
+                              ? Icons.toys_rounded
+                              : Icons.work_rounded,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              stepTitle,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 21,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              stepSubtitle,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                height: 1.4,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          stepTitle,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 21,
-                            fontWeight: FontWeight.w900,
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: LinearProgressIndicator(
+                            minHeight: 10,
+                            value: progressValue,
+                            backgroundColor: Colors.white24,
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          stepSubtitle,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            height: 1.4,
-                          ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        '${(progressValue * 100).toInt()}%',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 14,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -229,22 +265,78 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-            child: Row(
-              children: [
-                Text(
-                  'Tanlanganlar: $selectedCount',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.textDark,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
                   ),
-                ),
-              ],
+                ],
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.check_circle_rounded,
+                    color: AppTheme.primaryColor,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Tanlanganlar: $selectedCount ta',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.textDark,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
+          if (selectedTitles.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 42,
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                scrollDirection: Axis.horizontal,
+                children: selectedTitles
+                    .map(
+                      (title) => Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1EDFF),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.primaryColor,
+                      ),
+                    ),
+                  ),
+                )
+                    .toList(),
+              ),
+            ),
+          ],
+          const SizedBox(height: 10),
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
@@ -340,7 +432,8 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              Container(
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 180),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 10,
                                   vertical: 6,
