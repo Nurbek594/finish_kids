@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../data/stories_data.dart';
 import '../models/story_model.dart';
 import '../theme/app_theme.dart';
+import '../services/story_storage_service.dart';
 import 'story_detail_screen.dart';
 
 class StoriesScreen extends StatefulWidget {
@@ -16,15 +17,35 @@ class _StoriesScreenState extends State<StoriesScreen> {
 
   String selectedCategory = 'Barchasi';
   String searchText = '';
+  bool isLoading = true;
+
+  List<StoryModel> allStories = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStories();
+  }
+
+  Future<void> _loadStories() async {
+    final savedStories = await StoryStorageService.loadStories();
+
+    if (!mounted) return;
+
+    setState(() {
+      allStories = savedStories ?? List<StoryModel>.from(storiesList);
+      isLoading = false;
+    });
+  }
 
   List<String> get categories {
-    final unique = storiesList.map((e) => e.category).toSet().toList();
+    final unique = allStories.map((e) => e.category).toSet().toList();
     unique.sort();
     return ['Barchasi', ...unique];
   }
 
   List<StoryModel> get filteredStories {
-    return storiesList.where((story) {
+    return allStories.where((story) {
       final matchesCategory = selectedCategory == 'Barchasi'
           ? true
           : story.category == selectedCategory;
@@ -91,7 +112,11 @@ class _StoriesScreenState extends State<StoriesScreen> {
       appBar: AppBar(
         title: const Text('Ertaklar'),
       ),
-      body: Column(
+      body: isLoading
+          ? const Center(
+        child: CircularProgressIndicator(),
+      )
+          : Column(
         children: [
           const SizedBox(height: 8),
           Padding(
@@ -273,7 +298,8 @@ class _StoriesScreenState extends State<StoriesScreen> {
                 : GridView.builder(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
               itemCount: items.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate:
+              const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 mainAxisSpacing: 14,
                 crossAxisSpacing: 14,
@@ -287,7 +313,8 @@ class _StoriesScreenState extends State<StoriesScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => StoryDetailScreen(story: story),
+                        builder: (_) =>
+                            StoryDetailScreen(story: story),
                       ),
                     );
                   },
@@ -311,7 +338,8 @@ class _StoriesScreenState extends State<StoriesScreen> {
                             margin: const EdgeInsets.all(10),
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius:
+                              BorderRadius.circular(20),
                               gradient: const LinearGradient(
                                 colors: [
                                   Color(0xFFE9FFF9),
@@ -320,11 +348,13 @@ class _StoriesScreenState extends State<StoriesScreen> {
                               ),
                             ),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius:
+                              BorderRadius.circular(20),
                               child: Image.asset(
                                 story.coverImage,
                                 fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
+                                errorBuilder:
+                                    (context, error, stackTrace) {
                                   return const Center(
                                     child: Icon(
                                       Icons.auto_stories_rounded,
@@ -338,9 +368,11 @@ class _StoriesScreenState extends State<StoriesScreen> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                          padding: const EdgeInsets.fromLTRB(
+                              12, 0, 12, 12),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment:
+                            CrossAxisAlignment.start,
                             children: [
                               Text(
                                 story.title,
@@ -368,13 +400,15 @@ class _StoriesScreenState extends State<StoriesScreen> {
                               Row(
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.symmetric(
+                                    padding:
+                                    const EdgeInsets.symmetric(
                                       horizontal: 10,
                                       vertical: 6,
                                     ),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFE8FFF8),
-                                      borderRadius: BorderRadius.circular(20),
+                                      borderRadius:
+                                      BorderRadius.circular(20),
                                     ),
                                     child: Text(
                                       story.category,

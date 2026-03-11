@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/parent_tests_data.dart';
 import '../theme/app_theme.dart';
+import '../services/test_storage_service.dart';
 import 'parent_test_result_screen.dart';
 
 class ParentTestYesNoScreen extends StatefulWidget {
@@ -12,9 +13,28 @@ class ParentTestYesNoScreen extends StatefulWidget {
 
 class _ParentTestYesNoScreenState extends State<ParentTestYesNoScreen> {
   final Map<int, bool> answers = {};
+  List<String> questions = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadQuestions();
+  }
+
+  Future<void> _loadQuestions() async {
+    final saved = await TestStorageService.loadYesNoQuestions();
+
+    if (!mounted) return;
+
+    setState(() {
+      questions = saved ?? List<String>.from(parentTest3Questions);
+      isLoading = false;
+    });
+  }
 
   void finishTest() {
-    if (answers.length != parentTest3Questions.length) {
+    if (answers.length != questions.length) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Barcha savollarga javob bering'),
@@ -49,7 +69,9 @@ class _ParentTestYesNoScreenState extends State<ParentTestYesNoScreen> {
       appBar: AppBar(
         title: const Text('3-test'),
       ),
-      body: Column(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
         children: [
           const SizedBox(height: 8),
           Padding(
@@ -97,9 +119,9 @@ class _ParentTestYesNoScreenState extends State<ParentTestYesNoScreen> {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-              itemCount: parentTest3Questions.length,
+              itemCount: questions.length,
               itemBuilder: (context, index) {
-                final question = parentTest3Questions[index];
+                final question = questions[index];
                 final value = answers[index];
 
                 return Container(

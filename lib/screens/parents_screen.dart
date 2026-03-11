@@ -2,11 +2,37 @@ import 'package:flutter/material.dart';
 import '../data/parent_tips_data.dart';
 import '../models/parent_tip_model.dart';
 import '../theme/app_theme.dart';
+import '../services/parent_tip_storage_service.dart';
 import 'parent_tip_detail_screen.dart';
 import 'parent_tests_screen.dart';
 
-class ParentsScreen extends StatelessWidget {
+class ParentsScreen extends StatefulWidget {
   const ParentsScreen({super.key});
+
+  @override
+  State<ParentsScreen> createState() => _ParentsScreenState();
+}
+
+class _ParentsScreenState extends State<ParentsScreen> {
+  List<ParentTipModel> localTips = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTips();
+  }
+
+  Future<void> _loadTips() async {
+    final savedTips = await ParentTipStorageService.loadTips();
+
+    if (!mounted) return;
+
+    setState(() {
+      localTips = savedTips ?? List<ParentTipModel>.from(parentTips);
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +40,11 @@ class ParentsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Ota-onalar uchun'),
       ),
-      body: ListView(
+      body: isLoading
+          ? const Center(
+        child: CircularProgressIndicator(),
+      )
+          : ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
         children: [
           Container(
@@ -87,7 +117,7 @@ class ParentsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          ...parentTips.map((tip) => _TipCard(tip: tip)),
+          ...localTips.map((tip) => _TipCard(tip: tip)),
           const SizedBox(height: 8),
           const Text(
             'Testlar',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../data/parent_tests_data.dart';
 import '../models/test_question_model.dart';
 import '../theme/app_theme.dart';
+import '../services/test_storage_service.dart';
 import 'parent_test_result_screen.dart';
 
 class ParentTestMcqScreen extends StatefulWidget {
@@ -18,14 +19,8 @@ class ParentTestMcqScreen extends StatefulWidget {
 
 class _ParentTestMcqScreenState extends State<ParentTestMcqScreen> {
   final Map<int, int> selectedAnswers = {};
-
-  List<TestQuestionModel> get questions {
-    if (widget.testType == 1) {
-      return parentTest1Questions;
-    } else {
-      return parentTest2Questions;
-    }
-  }
+  List<TestQuestionModel> questions = [];
+  bool isLoading = true;
 
   String get screenTitle {
     if (widget.testType == 1) {
@@ -41,6 +36,27 @@ class _ParentTestMcqScreenState extends State<ParentTestMcqScreen> {
     } else {
       return 'Oiladagi pedagogik xulq-atvor uslubi';
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadQuestions();
+  }
+
+  Future<void> _loadQuestions() async {
+    final saved = await TestStorageService.loadMcqQuestions(widget.testType);
+
+    if (!mounted) return;
+
+    setState(() {
+      if (widget.testType == 1) {
+        questions = saved ?? List<TestQuestionModel>.from(parentTest1Questions);
+      } else {
+        questions = saved ?? List<TestQuestionModel>.from(parentTest2Questions);
+      }
+      isLoading = false;
+    });
   }
 
   void finishTest() {
@@ -87,7 +103,9 @@ class _ParentTestMcqScreenState extends State<ParentTestMcqScreen> {
       appBar: AppBar(
         title: Text(screenTitle),
       ),
-      body: Column(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
         children: [
           const SizedBox(height: 8),
           Padding(

@@ -2,10 +2,36 @@ import 'package:flutter/material.dart';
 import '../data/gender_info_data.dart';
 import '../models/gender_info_model.dart';
 import '../theme/app_theme.dart';
+import '../services/gender_info_storage_service.dart';
 import 'gender_info_detail_screen.dart';
 
-class GenderInfoScreen extends StatelessWidget {
+class GenderInfoScreen extends StatefulWidget {
   const GenderInfoScreen({super.key});
+
+  @override
+  State<GenderInfoScreen> createState() => _GenderInfoScreenState();
+}
+
+class _GenderInfoScreenState extends State<GenderInfoScreen> {
+  List<GenderInfoModel> localGenderInfos = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGenderInfos();
+  }
+
+  Future<void> _loadGenderInfos() async {
+    final savedItems = await GenderInfoStorageService.loadGenderInfos();
+
+    if (!mounted) return;
+
+    setState(() {
+      localGenderInfos = savedItems ?? List<GenderInfoModel>.from(genderInfoList);
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +39,11 @@ class GenderInfoScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Gender identifikatsiya'),
       ),
-      body: Column(
+      body: isLoading
+          ? const Center(
+        child: CircularProgressIndicator(),
+      )
+          : Column(
         children: [
           const SizedBox(height: 8),
           Padding(
@@ -84,9 +114,9 @@ class GenderInfoScreen extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-              itemCount: genderInfoList.length,
+              itemCount: localGenderInfos.length,
               itemBuilder: (context, index) {
-                final GenderInfoModel item = genderInfoList[index];
+                final GenderInfoModel item = localGenderInfos[index];
 
                 return GestureDetector(
                   onTap: () {

@@ -14,4 +14,26 @@ class StoryModel {
     required this.category,
     required this.readMinutes,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'coverImage': coverImage,
+      'shortDescription': shortDescription,
+      'content': content,
+      'category': category,
+      'readMinutes': readMinutes,
+    };
+  }
+
+  factory StoryModel.fromMap(Map<String, dynamic> map) {
+    return StoryModel(
+      title: map['title'] ?? '',
+      coverImage: map['coverImage'] ?? '',
+      shortDescription: map['shortDescription'] ?? '',
+      content: map['content'] ?? '',
+      category: map['category'] ?? '',
+      readMinutes: map['readMinutes'] ?? 2,
+    );
+  }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../data/who_am_i_data.dart';
 import '../models/diagnostic_result_model.dart';
 import '../models/who_am_i_item_model.dart';
+import '../services/who_am_i_storage_service.dart';
 import '../theme/app_theme.dart';
 import 'who_am_i_result_screen.dart';
 
@@ -18,8 +19,31 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
   final List<WhoAmIItemModel> selectedToys = [];
   final List<WhoAmIItemModel> selectedJobs = [];
 
+  List<WhoAmIItemModel> toyItemsLocal = [];
+  List<WhoAmIItemModel> jobItemsLocal = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadItems();
+  }
+
+  Future<void> _loadItems() async {
+    final toys = await WhoAmIStorageService.loadToys();
+    final jobs = await WhoAmIStorageService.loadJobs();
+
+    if (!mounted) return;
+
+    setState(() {
+      toyItemsLocal = toys;
+      jobItemsLocal = jobs;
+      isLoading = false;
+    });
+  }
+
   List<WhoAmIItemModel> get currentItems =>
-      currentStep == 0 ? toyItems : jobItems;
+      currentStep == 0 ? toyItemsLocal : jobItemsLocal;
 
   String get stepTitle =>
       currentStep == 0 ? '1-bosqich: O‘yinchoqlar' : '2-bosqich: Kasblar';
@@ -56,9 +80,11 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
   int calculateScore() {
     final allSelected = [...selectedToys, ...selectedJobs];
     int score = 0;
+
     for (final item in allSelected) {
       score += item.score;
     }
+
     return score;
   }
 
@@ -75,6 +101,7 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
         showMessage('Kamida 1 ta o‘yinchoq tanlang');
         return;
       }
+
       setState(() {
         currentStep = 1;
       });
@@ -130,7 +157,11 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
       appBar: AppBar(
         title: const Text('Men kimman?'),
       ),
-      body: Column(
+      body: isLoading
+          ? const Center(
+        child: CircularProgressIndicator(),
+      )
+          : Column(
         children: [
           const SizedBox(height: 8),
           Padding(
@@ -217,7 +248,8 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                             minHeight: 10,
                             value: progressValue,
                             backgroundColor: Colors.white24,
-                            valueColor: const AlwaysStoppedAnimation<Color>(
+                            valueColor:
+                            const AlwaysStoppedAnimation<Color>(
                               Colors.white,
                             ),
                           ),
@@ -341,7 +373,8 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
             child: GridView.builder(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
               itemCount: currentItems.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate:
+              const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 mainAxisSpacing: 14,
                 crossAxisSpacing: 14,
@@ -399,7 +432,8 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                               child: Image.asset(
                                 item.image,
                                 fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
+                                errorBuilder:
+                                    (context, error, stackTrace) {
                                   return Center(
                                     child: Icon(
                                       currentStep == 0
@@ -417,7 +451,8 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 0, 12, 14),
+                          padding:
+                          const EdgeInsets.fromLTRB(12, 0, 12, 14),
                           child: Column(
                             children: [
                               Text(
@@ -433,7 +468,8 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                               ),
                               const SizedBox(height: 8),
                               AnimatedContainer(
-                                duration: const Duration(milliseconds: 180),
+                                duration:
+                                const Duration(milliseconds: 180),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 10,
                                   vertical: 6,
@@ -481,7 +517,9 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                   ),
                 ),
                 child: Text(
-                  currentStep == 0 ? 'Keyingi bosqich' : 'Natijani ko‘rish',
+                  currentStep == 0
+                      ? 'Keyingi bosqich'
+                      : 'Natijani ko‘rish',
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w900,

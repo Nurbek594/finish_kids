@@ -6,6 +6,7 @@ import 'gender_info_screen.dart';
 import 'who_am_i_screen.dart';
 import 'stories_screen.dart';
 import 'parents_screen.dart';
+import 'admin_login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -156,6 +157,26 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const AdminLoginScreen(),
+            ),
+          );
+        },
+        backgroundColor: const Color(0xFF2D3142),
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.admin_panel_settings_rounded),
+        label: const Text(
+          'Admin',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
       body: AnimatedBuilder(
         animation: _controller,
         builder: (context, child) {
