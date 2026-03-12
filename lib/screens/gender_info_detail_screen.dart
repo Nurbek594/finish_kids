@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/gender_info_model.dart';
 import '../theme/app_theme.dart';
+import 'dart:io';
 
 class GenderInfoDetailScreen extends StatelessWidget {
   final GenderInfoModel item;
@@ -49,18 +50,18 @@ class GenderInfoDetailScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Image.asset(
+                  item.isLocalImage
+                      ? Image.file(
+                    File(item.image),
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: 240,
+                  )
+                      : Image.asset(
                     item.image,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Center(
-                        child: Icon(
-                          Icons.psychology_alt_rounded,
-                          size: 88,
-                          color: Colors.white,
-                        ),
-                      );
-                    },
+                    width: double.infinity,
+                    height: 240,
                   ),
                   Container(
                     color: Colors.black.withOpacity(0.15),

@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/story_model.dart';
 import '../theme/app_theme.dart';
 
@@ -23,20 +25,42 @@ class _AdminAddStoryScreenState extends State<AdminAddStoryScreen> {
   final TextEditingController _categoryController = TextEditingController();
   final TextEditingController _readMinutesController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
-  final TextEditingController _coverImageController = TextEditingController(
-    text: 'assets/images/story1.png',
-  );
+
+  String selectedImagePath = '';
+  bool isPickingImage = false;
+
+  Future<void> pickImage() async {
+    final picker = ImagePicker();
+
+    setState(() {
+      isPickingImage = true;
+    });
+
+    final XFile? file = await picker.pickImage(source: ImageSource.gallery);
+
+    if (!mounted) return;
+
+    setState(() {
+      isPickingImage = false;
+      if (file != null) {
+        selectedImagePath = file.path;
+      }
+    });
+  }
 
   void saveStory() {
     if (!_formKey.currentState!.validate()) return;
 
     final story = StoryModel(
       title: _titleController.text.trim(),
-      coverImage: _coverImageController.text.trim(),
+      coverImage: selectedImagePath.isEmpty
+          ? 'assets/images/story1.png'
+          : selectedImagePath,
       shortDescription: _shortDescriptionController.text.trim(),
       category: _categoryController.text.trim(),
       readMinutes: int.tryParse(_readMinutesController.text.trim()) ?? 2,
       content: _contentController.text.trim(),
+      isLocalImage: selectedImagePath.isNotEmpty,
     );
 
     widget.onAdd(story);
@@ -50,7 +74,6 @@ class _AdminAddStoryScreenState extends State<AdminAddStoryScreen> {
     _categoryController.dispose();
     _readMinutesController.dispose();
     _contentController.dispose();
-    _coverImageController.dispose();
     super.dispose();
   }
 
@@ -75,11 +98,38 @@ class _AdminAddStoryScreenState extends State<AdminAddStoryScreen> {
           width: 1.4,
         ),
       ),
-      errorBorder: OutlineInputBorder(
+    );
+  }
+
+  Widget _buildImagePreview() {
+    if (isPickingImage) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (selectedImagePath.isNotEmpty) {
+      return ClipRRect(
         borderRadius: BorderRadius.circular(18),
-        borderSide: const BorderSide(
-          color: Colors.redAccent,
-          width: 1.2,
+        child: Image.file(
+          File(selectedImagePath),
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: 180,
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      height: 180,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: const Color(0xFFF4F6FA),
+      ),
+      child: const Center(
+        child: Icon(
+          Icons.image_outlined,
+          size: 54,
+          color: AppTheme.primaryColor,
         ),
       ),
     );
@@ -106,17 +156,8 @@ class _AdminAddStoryScreenState extends State<AdminAddStoryScreen> {
                       Color(0xFF28C2A0),
                       Color(0xFF7EE8C8),
                     ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(26),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF28C2A0).withOpacity(0.22),
-                      blurRadius: 16,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
                 ),
                 child: const Row(
                   children: [
@@ -131,40 +172,41 @@ class _AdminAddStoryScreenState extends State<AdminAddStoryScreen> {
                     ),
                     SizedBox(width: 14),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Yangi ertak',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 21,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                          SizedBox(height: 6),
-                          Text(
-                            'Ertak ma’lumotlarini kiriting va saqlang',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              height: 1.4,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        'Yangi ertak qo‘shish',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 21,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
+              _buildImagePreview(),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 52,
+                child: ElevatedButton.icon(
+                  onPressed: pickImage,
+                  icon: const Icon(Icons.photo_library_rounded),
+                  label: const Text('Galereyadan rasm tanlash'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
               TextFormField(
                 controller: _titleController,
-                decoration: _inputDecoration(
-                  'Ertak nomi',
-                  Icons.title_rounded,
-                ),
+                decoration:
+                _inputDecoration('Ertak nomi', Icons.title_rounded),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Ertak nomini kiriting';
@@ -190,10 +232,8 @@ class _AdminAddStoryScreenState extends State<AdminAddStoryScreen> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _categoryController,
-                decoration: _inputDecoration(
-                  'Kategoriya',
-                  Icons.category_rounded,
-                ),
+                decoration:
+                _inputDecoration('Kategoriya', Icons.category_rounded),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Kategoriya kiriting';
@@ -221,26 +261,10 @@ class _AdminAddStoryScreenState extends State<AdminAddStoryScreen> {
               ),
               const SizedBox(height: 12),
               TextFormField(
-                controller: _coverImageController,
-                decoration: _inputDecoration(
-                  'Rasm manzili',
-                  Icons.image_rounded,
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Rasm manzilini kiriting';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
                 controller: _contentController,
                 maxLines: 10,
-                decoration: _inputDecoration(
-                  'Ertak matni',
-                  Icons.menu_book_rounded,
-                ),
+                decoration:
+                _inputDecoration('Ertak matni', Icons.menu_book_rounded),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Ertak matnini kiriting';

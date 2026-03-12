@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/story_model.dart';
 import '../theme/app_theme.dart';
+import 'dart:io';
 
 class StoryDetailScreen extends StatelessWidget {
   final StoryModel story;
@@ -50,7 +51,21 @@ class StoryDetailScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Image.asset(
+                  story.isLocalImage
+                      ? Image.file(
+                    File(story.coverImage),
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Center(
+                        child: Icon(
+                          Icons.auto_stories_rounded,
+                          size: 90,
+                          color: Colors.white,
+                        ),
+                      );
+                    },
+                  )
+                      : Image.asset(
                     story.coverImage,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {

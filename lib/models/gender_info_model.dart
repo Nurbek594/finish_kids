@@ -4,6 +4,7 @@ class GenderInfoModel {
   final String shortDescription;
   final String fullDescription;
   final String author;
+  final bool isLocalImage;
 
   const GenderInfoModel({
     required this.title,
@@ -11,6 +12,7 @@ class GenderInfoModel {
     required this.shortDescription,
     required this.fullDescription,
     required this.author,
+    this.isLocalImage = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -20,6 +22,7 @@ class GenderInfoModel {
       'shortDescription': shortDescription,
       'fullDescription': fullDescription,
       'author': author,
+      'isLocalImage': isLocalImage,
     };
   }
 
@@ -30,6 +33,7 @@ class GenderInfoModel {
       shortDescription: map['shortDescription'] ?? '',
       fullDescription: map['fullDescription'] ?? '',
       author: map['author'] ?? '',
+      isLocalImage: map['isLocalImage'] ?? false,
     );
   }
 }

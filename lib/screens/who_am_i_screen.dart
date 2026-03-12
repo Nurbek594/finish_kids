@@ -5,6 +5,7 @@ import '../models/who_am_i_item_model.dart';
 import '../services/who_am_i_storage_service.dart';
 import '../theme/app_theme.dart';
 import 'who_am_i_result_screen.dart';
+import 'dart:io';
 
 class WhoAmIScreen extends StatefulWidget {
   const WhoAmIScreen({super.key});
@@ -429,20 +430,33 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(20),
-                              child: Image.asset(
-                                item.image,
+                              child: item.image.startsWith('/') || item.image.contains(r':\')
+                                  ? Image.file(
+                                File(item.image),
                                 fit: BoxFit.cover,
-                                errorBuilder:
-                                    (context, error, stackTrace) {
+                                errorBuilder: (context, error, stackTrace) {
                                   return Center(
                                     child: Icon(
                                       currentStep == 0
                                           ? Icons.toys_rounded
                                           : Icons.work_outline_rounded,
                                       size: 52,
-                                      color: selected
-                                          ? AppTheme.primaryColor
-                                          : Colors.orange,
+                                      color: selected ? AppTheme.primaryColor : Colors.orange,
+                                    ),
+                                  );
+                                },
+                              )
+                                  : Image.asset(
+                                item.image,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Center(
+                                    child: Icon(
+                                      currentStep == 0
+                                          ? Icons.toys_rounded
+                                          : Icons.work_outline_rounded,
+                                      size: 52,
+                                      color: selected ? AppTheme.primaryColor : Colors.orange,
                                     ),
                                   );
                                 },

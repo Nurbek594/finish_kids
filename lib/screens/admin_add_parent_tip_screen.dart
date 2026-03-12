@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/parent_tip_model.dart';
 import '../theme/app_theme.dart';
 
@@ -19,21 +21,43 @@ class _AdminAddParentTipScreenState extends State<AdminAddParentTipScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _imageController = TextEditingController(
-    text: 'assets/images/tip1.png',
-  );
   final TextEditingController _shortDescriptionController =
   TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+
+  String selectedImagePath = '';
+  bool isPickingImage = false;
+
+  Future<void> pickImage() async {
+    final picker = ImagePicker();
+
+    setState(() {
+      isPickingImage = true;
+    });
+
+    final XFile? file = await picker.pickImage(source: ImageSource.gallery);
+
+    if (!mounted) return;
+
+    setState(() {
+      isPickingImage = false;
+      if (file != null) {
+        selectedImagePath = file.path;
+      }
+    });
+  }
 
   void saveTip() {
     if (!_formKey.currentState!.validate()) return;
 
     final tip = ParentTipModel(
       title: _titleController.text.trim(),
-      image: _imageController.text.trim(),
+      image: selectedImagePath.isEmpty
+          ? 'assets/images/tip1.png'
+          : selectedImagePath,
       shortDescription: _shortDescriptionController.text.trim(),
       description: _descriptionController.text.trim(),
+      isLocalImage: selectedImagePath.isNotEmpty,
     );
 
     widget.onAdd(tip);
@@ -43,7 +67,6 @@ class _AdminAddParentTipScreenState extends State<AdminAddParentTipScreen> {
   @override
   void dispose() {
     _titleController.dispose();
-    _imageController.dispose();
     _shortDescriptionController.dispose();
     _descriptionController.dispose();
     super.dispose();
@@ -73,6 +96,40 @@ class _AdminAddParentTipScreenState extends State<AdminAddParentTipScreen> {
     );
   }
 
+  Widget buildImagePreview() {
+    if (isPickingImage) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (selectedImagePath.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: Image.file(
+          File(selectedImagePath),
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: 180,
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      height: 180,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: const Color(0xFFF4F6FA),
+      ),
+      child: const Center(
+        child: Icon(
+          Icons.image_outlined,
+          size: 54,
+          color: AppTheme.primaryColor,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,60 +143,24 @@ class _AdminAddParentTipScreenState extends State<AdminAddParentTipScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
             children: [
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF5DA9FF),
-                      Color(0xFF8ED2FF),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+              buildImagePreview(),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 52,
+                child: ElevatedButton.icon(
+                  onPressed: pickImage,
+                  icon: const Icon(Icons.photo_library_rounded),
+                  label: const Text('Galereyadan rasm tanlash'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
-                  borderRadius: BorderRadius.circular(26),
-                ),
-                child: const Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: Colors.white24,
-                      child: Icon(
-                        Icons.add_comment_rounded,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                    ),
-                    SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Yangi tavsiya',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 21,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                          SizedBox(height: 6),
-                          Text(
-                            'Tavsiya ma’lumotlarini kiriting va saqlang',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              height: 1.4,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               TextFormField(
                 controller: _titleController,
                 decoration:
@@ -147,18 +168,6 @@ class _AdminAddParentTipScreenState extends State<AdminAddParentTipScreen> {
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Tavsiya nomini kiriting';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _imageController,
-                decoration:
-                _inputDecoration('Rasm manzili', Icons.image_rounded),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Rasm manzilini kiriting';
                   }
                   return null;
                 },

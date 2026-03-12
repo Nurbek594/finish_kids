@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/parent_tip_model.dart';
 import '../theme/app_theme.dart';
 
@@ -19,31 +21,117 @@ class AdminEditParentTipScreen extends StatefulWidget {
 
 class _AdminEditParentTipScreenState extends State<AdminEditParentTipScreen> {
   late TextEditingController titleController;
-  late TextEditingController imageController;
   late TextEditingController shortDescriptionController;
   late TextEditingController descriptionController;
+
+  late String selectedImagePath;
+  late bool isLocalImage;
+  bool isPickingImage = false;
 
   @override
   void initState() {
     super.initState();
 
     titleController = TextEditingController(text: widget.tip.title);
-    imageController = TextEditingController(text: widget.tip.image);
     shortDescriptionController =
         TextEditingController(text: widget.tip.shortDescription);
     descriptionController = TextEditingController(text: widget.tip.description);
+    selectedImagePath = widget.tip.image;
+    isLocalImage = widget.tip.isLocalImage;
+  }
+
+  Future<void> pickImage() async {
+    final picker = ImagePicker();
+
+    setState(() {
+      isPickingImage = true;
+    });
+
+    final XFile? file = await picker.pickImage(source: ImageSource.gallery);
+
+    if (!mounted) return;
+
+    setState(() {
+      isPickingImage = false;
+      if (file != null) {
+        selectedImagePath = file.path;
+        isLocalImage = true;
+      }
+    });
   }
 
   void save() {
     final editedTip = ParentTipModel(
-      title: titleController.text,
-      image: imageController.text,
-      shortDescription: shortDescriptionController.text,
-      description: descriptionController.text,
+      title: titleController.text.trim(),
+      image: selectedImagePath,
+      shortDescription: shortDescriptionController.text.trim(),
+      description: descriptionController.text.trim(),
+      isLocalImage: isLocalImage,
     );
 
     widget.onSave(editedTip);
     Navigator.pop(context);
+  }
+
+  Widget buildImagePreview() {
+    if (isPickingImage) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (selectedImagePath.isEmpty) {
+      return Container(
+        width: double.infinity,
+        height: 180,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          color: const Color(0xFFF4F6FA),
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.image_outlined,
+            size: 54,
+            color: AppTheme.primaryColor,
+          ),
+        ),
+      );
+    }
+
+    if (isLocalImage) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: Image.file(
+          File(selectedImagePath),
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: 180,
+        ),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(18),
+      child: Image.asset(
+        selectedImagePath,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: 180,
+        errorBuilder: (_, __, ___) => Container(
+          width: double.infinity,
+          height: 180,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            color: const Color(0xFFF4F6FA),
+          ),
+          child: const Center(
+            child: Icon(
+              Icons.broken_image_outlined,
+              size: 54,
+              color: AppTheme.primaryColor,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   InputDecoration input(String label) {
@@ -61,7 +149,6 @@ class _AdminEditParentTipScreenState extends State<AdminEditParentTipScreen> {
   @override
   void dispose() {
     titleController.dispose();
-    imageController.dispose();
     shortDescriptionController.dispose();
     descriptionController.dispose();
     super.dispose();
@@ -76,14 +163,27 @@ class _AdminEditParentTipScreenState extends State<AdminEditParentTipScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          TextField(
-            controller: titleController,
-            decoration: input("Tavsiya nomi"),
+          buildImagePreview(),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 52,
+            child: ElevatedButton.icon(
+              onPressed: pickImage,
+              icon: const Icon(Icons.photo_library_rounded),
+              label: const Text('Galereyadan yangi rasm tanlash'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: 12),
           TextField(
-            controller: imageController,
-            decoration: input("Rasm manzili"),
+            controller: titleController,
+            decoration: input("Tavsiya nomi"),
           ),
           const SizedBox(height: 12),
           TextField(
@@ -112,6 +212,7 @@ class _AdminEditParentTipScreenState extends State<AdminEditParentTipScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
+                  color: Colors.white,
                 ),
               ),
             ),

@@ -4,6 +4,7 @@ import '../models/story_model.dart';
 import '../theme/app_theme.dart';
 import '../services/story_storage_service.dart';
 import 'story_detail_screen.dart';
+import 'dart:io';
 
 class StoriesScreen extends StatefulWidget {
   const StoriesScreen({super.key});
@@ -350,11 +351,24 @@ class _StoriesScreenState extends State<StoriesScreen> {
                             child: ClipRRect(
                               borderRadius:
                               BorderRadius.circular(20),
-                              child: Image.asset(
+                              child: story.isLocalImage
+                                  ? Image.file(
+                                File(story.coverImage),
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Center(
+                                    child: Icon(
+                                      Icons.auto_stories_rounded,
+                                      size: 50,
+                                      color: Color(0xFF28C2A0),
+                                    ),
+                                  );
+                                },
+                              )
+                                  : Image.asset(
                                 story.coverImage,
                                 fit: BoxFit.cover,
-                                errorBuilder:
-                                    (context, error, stackTrace) {
+                                errorBuilder: (context, error, stackTrace) {
                                   return const Center(
                                     child: Icon(
                                       Icons.auto_stories_rounded,

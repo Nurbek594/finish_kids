@@ -15,7 +15,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
   bool obscurePassword = true;
 
-  // Hozircha offline admin credentials
   final String adminUsername = 'admin';
   final String adminPassword = '12345';
 

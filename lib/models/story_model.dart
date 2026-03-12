@@ -5,6 +5,7 @@ class StoryModel {
   final String content;
   final String category;
   final int readMinutes;
+  final bool isLocalImage;
 
   const StoryModel({
     required this.title,
@@ -13,6 +14,7 @@ class StoryModel {
     required this.content,
     required this.category,
     required this.readMinutes,
+    this.isLocalImage = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +25,7 @@ class StoryModel {
       'content': content,
       'category': category,
       'readMinutes': readMinutes,
+      'isLocalImage': isLocalImage,
     };
   }
 
@@ -34,6 +37,7 @@ class StoryModel {
       content: map['content'] ?? '',
       category: map['category'] ?? '',
       readMinutes: map['readMinutes'] ?? 2,
+      isLocalImage: map['isLocalImage'] ?? false,
     );
   }
 }

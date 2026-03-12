@@ -5,6 +5,7 @@ import '../theme/app_theme.dart';
 import '../services/parent_tip_storage_service.dart';
 import 'parent_tip_detail_screen.dart';
 import 'parent_tests_screen.dart';
+import 'dart:io';
 
 class ParentsScreen extends StatefulWidget {
   const ParentsScreen({super.key});
@@ -255,7 +256,21 @@ class _TipCard extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(22),
-                child: Image.asset(
+                child: tip.isLocalImage
+                    ? Image.file(
+                  File(tip.image),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Center(
+                      child: Icon(
+                        Icons.family_restroom_rounded,
+                        size: 40,
+                        color: AppTheme.primaryColor,
+                      ),
+                    );
+                  },
+                )
+                    : Image.asset(
                   tip.image,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {

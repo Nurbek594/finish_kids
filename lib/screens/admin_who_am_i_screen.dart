@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../data/who_am_i_data.dart';
 import '../models/who_am_i_item_model.dart';
 import '../services/who_am_i_storage_service.dart';
@@ -15,7 +17,7 @@ class _AdminWhoAmIScreenState extends State<AdminWhoAmIScreen> {
   List<WhoAmIItemModel> toys = [];
   List<WhoAmIItemModel> jobs = [];
   bool isLoading = true;
-  int currentTab = 0; // 0 = toys, 1 = jobs
+  int currentTab = 0;
 
   @override
   void initState() {
@@ -62,95 +64,166 @@ class _AdminWhoAmIScreenState extends State<AdminWhoAmIScreen> {
     );
   }
 
+  Future<String?> _pickImage() async {
+    final picker = ImagePicker();
+    final XFile? file = await picker.pickImage(source: ImageSource.gallery);
+    return file?.path;
+  }
+
+  Widget _previewImage(String imagePath) {
+    if (imagePath.isEmpty) {
+      return Container(
+        width: 80,
+        height: 80,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF3F4F6),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Icon(
+          Icons.image_outlined,
+          color: AppTheme.primaryColor,
+        ),
+      );
+    }
+
+    final isLocal = imagePath.startsWith('/') || imagePath.contains(r':\');
+
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F4F6),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: isLocal
+            ? Image.file(
+          File(imagePath),
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => const Icon(
+            Icons.broken_image_outlined,
+            color: AppTheme.primaryColor,
+          ),
+        )
+            : Image.asset(
+          imagePath,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => const Icon(
+            Icons.broken_image_outlined,
+            color: AppTheme.primaryColor,
+          ),
+        ),
+      ),
+    );
+  }
+
   void _showAddDialog() {
     final titleController = TextEditingController();
-    final imageController = TextEditingController(
-      text: currentTab == 0
-          ? 'assets/images/toy1.png'
-          : 'assets/images/job1.png',
-    );
     final categoryController = TextEditingController(
       text: currentTab == 0 ? 'toy' : 'job',
     );
     final scoreController = TextEditingController(text: '1');
+    String selectedImagePath = '';
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text(
-          currentTab == 0
-              ? 'Yangi o‘yinchoq qo‘shish'
-              : 'Yangi kasb qo‘shish',
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: const InputDecoration(labelText: 'Nomi'),
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text(
+                currentTab == 0
+                    ? 'Yangi o‘yinchoq qo‘shish'
+                    : 'Yangi kasb qo‘shish',
               ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: imageController,
-                decoration: const InputDecoration(labelText: 'Rasm yo‘li'),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: categoryController,
-                decoration: const InputDecoration(labelText: 'Kategoriya'),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: scoreController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Ball'),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Bekor qilish'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final newItem = WhoAmIItemModel(
-                title: titleController.text.trim(),
-                image: imageController.text.trim(),
-                category: categoryController.text.trim(),
-                score: int.tryParse(scoreController.text.trim()) ?? 1,
-              );
-
-              if (newItem.title.isEmpty || newItem.image.isEmpty) {
-                return;
-              }
-
-              setState(() {
-                if (currentTab == 0) {
-                  toys.insert(0, newItem);
-                } else {
-                  jobs.insert(0, newItem);
-                }
-              });
-
-              await _saveCurrentLists();
-
-              if (!mounted) return;
-              Navigator.pop(context);
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${newItem.title} qo‘shildi'),
-                  behavior: SnackBarBehavior.floating,
-                  backgroundColor: AppTheme.primaryColor,
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _previewImage(selectedImagePath),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          final path = await _pickImage();
+                          if (path != null) {
+                            setDialogState(() {
+                              selectedImagePath = path;
+                            });
+                          }
+                        },
+                        icon: const Icon(Icons.photo_library_rounded),
+                        label: const Text('Rasm tanlash'),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: titleController,
+                      decoration: const InputDecoration(labelText: 'Nomi'),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: categoryController,
+                      decoration: const InputDecoration(labelText: 'Kategoriya'),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: scoreController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'Ball'),
+                    ),
+                  ],
                 ),
-              );
-            },
-            child: const Text('Saqlash'),
-          ),
-        ],
-      ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Bekor qilish'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final newItem = WhoAmIItemModel(
+                      title: titleController.text.trim(),
+                      image: selectedImagePath.isEmpty
+                          ? (currentTab == 0
+                          ? 'assets/images/toy1.png'
+                          : 'assets/images/job1.png')
+                          : selectedImagePath,
+                      category: categoryController.text.trim(),
+                      score: int.tryParse(scoreController.text.trim()) ?? 1,
+                    );
+
+                    if (newItem.title.isEmpty) return;
+
+                    setState(() {
+                      if (currentTab == 0) {
+                        toys.insert(0, newItem);
+                      } else {
+                        jobs.insert(0, newItem);
+                      }
+                    });
+
+                    await _saveCurrentLists();
+
+                    if (!mounted) return;
+                    Navigator.pop(dialogContext);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('${newItem.title} qo‘shildi'),
+                        behavior: SnackBarBehavior.floating,
+                        backgroundColor: AppTheme.primaryColor,
+                      ),
+                    );
+                  },
+                  child: const Text('Saqlash'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -159,79 +232,98 @@ class _AdminWhoAmIScreenState extends State<AdminWhoAmIScreen> {
     required int index,
   }) {
     final titleController = TextEditingController(text: item.title);
-    final imageController = TextEditingController(text: item.image);
     final categoryController = TextEditingController(text: item.category);
     final scoreController = TextEditingController(text: item.score.toString());
+    String selectedImagePath = item.image;
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Elementni tahrirlash'),
-        content: SingleChildScrollView(
-          child: Column(
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: const InputDecoration(labelText: 'Nomi'),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: imageController,
-                decoration: const InputDecoration(labelText: 'Rasm yo‘li'),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: categoryController,
-                decoration: const InputDecoration(labelText: 'Kategoriya'),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: scoreController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Ball'),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Bekor qilish'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final updated = WhoAmIItemModel(
-                title: titleController.text.trim(),
-                image: imageController.text.trim(),
-                category: categoryController.text.trim(),
-                score: int.tryParse(scoreController.text.trim()) ?? 1,
-              );
-
-              setState(() {
-                if (currentTab == 0) {
-                  toys[index] = updated;
-                } else {
-                  jobs[index] = updated;
-                }
-              });
-
-              await _saveCurrentLists();
-
-              if (!mounted) return;
-              Navigator.pop(context);
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${updated.title} yangilandi'),
-                  behavior: SnackBarBehavior.floating,
-                  backgroundColor: AppTheme.primaryColor,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Elementni tahrirlash'),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _previewImage(selectedImagePath),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          final path = await _pickImage();
+                          if (path != null) {
+                            setDialogState(() {
+                              selectedImagePath = path;
+                            });
+                          }
+                        },
+                        icon: const Icon(Icons.photo_library_rounded),
+                        label: const Text('Yangi rasm tanlash'),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: titleController,
+                      decoration: const InputDecoration(labelText: 'Nomi'),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: categoryController,
+                      decoration: const InputDecoration(labelText: 'Kategoriya'),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: scoreController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'Ball'),
+                    ),
+                  ],
                 ),
-              );
-            },
-            child: const Text('Saqlash'),
-          ),
-        ],
-      ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Bekor qilish'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final updated = WhoAmIItemModel(
+                      title: titleController.text.trim(),
+                      image: selectedImagePath,
+                      category: categoryController.text.trim(),
+                      score: int.tryParse(scoreController.text.trim()) ?? 1,
+                    );
+
+                    setState(() {
+                      if (currentTab == 0) {
+                        toys[index] = updated;
+                      } else {
+                        jobs[index] = updated;
+                      }
+                    });
+
+                    await _saveCurrentLists();
+
+                    if (!mounted) return;
+                    Navigator.pop(dialogContext);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('${updated.title} yangilandi'),
+                        behavior: SnackBarBehavior.floating,
+                        backgroundColor: AppTheme.primaryColor,
+                      ),
+                    );
+                  },
+                  child: const Text('Saqlash'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -269,14 +361,11 @@ class _AdminWhoAmIScreenState extends State<AdminWhoAmIScreen> {
           IconButton(
             onPressed: isLoading ? null : _resetData,
             icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'Defaultga qaytarish',
           ),
         ],
       ),
       body: isLoading
-          ? const Center(
-        child: CircularProgressIndicator(),
-      )
+          ? const Center(child: CircularProgressIndicator())
           : Column(
         children: [
           const SizedBox(height: 8),
@@ -296,20 +385,8 @@ class _AdminWhoAmIScreenState extends State<AdminWhoAmIScreen> {
                     const Color(0xFF5DA9FF),
                     const Color(0xFF8ED2FF),
                   ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(26),
-                boxShadow: [
-                  BoxShadow(
-                    color: (currentTab == 0
-                        ? const Color(0xFFFF8A65)
-                        : const Color(0xFF5DA9FF))
-                        .withOpacity(0.22),
-                    blurRadius: 16,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
               ),
               child: Row(
                 children: [
@@ -326,30 +403,15 @@ class _AdminWhoAmIScreenState extends State<AdminWhoAmIScreen> {
                   ),
                   const SizedBox(width: 14),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          currentTab == 0
-                              ? 'O‘yinchoqlar boshqaruvi'
-                              : 'Kasblar boshqaruvi',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 21,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          '${items.length} ta element mavjud',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            height: 1.4,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      currentTab == 0
+                          ? 'O‘yinchoqlar boshqaruvi'
+                          : 'Kasblar boshqaruvi',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 21,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                 ],
@@ -365,16 +427,7 @@ class _AdminWhoAmIScreenState extends State<AdminWhoAmIScreen> {
                   child: ChoiceChip(
                     label: const Text('O‘yinchoqlar'),
                     selected: currentTab == 0,
-                    onSelected: (_) {
-                      setState(() => currentTab = 0);
-                    },
-                    selectedColor: const Color(0xFFFFE3D8),
-                    labelStyle: TextStyle(
-                      color: currentTab == 0
-                          ? const Color(0xFFFF8A65)
-                          : AppTheme.textDark,
-                      fontWeight: FontWeight.w800,
-                    ),
+                    onSelected: (_) => setState(() => currentTab = 0),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -382,16 +435,7 @@ class _AdminWhoAmIScreenState extends State<AdminWhoAmIScreen> {
                   child: ChoiceChip(
                     label: const Text('Kasblar'),
                     selected: currentTab == 1,
-                    onSelected: (_) {
-                      setState(() => currentTab = 1);
-                    },
-                    selectedColor: const Color(0xFFDFF1FF),
-                    labelStyle: TextStyle(
-                      color: currentTab == 1
-                          ? const Color(0xFF5DA9FF)
-                          : AppTheme.textDark,
-                      fontWeight: FontWeight.w800,
-                    ),
+                    onSelected: (_) => setState(() => currentTab = 1),
                   ),
                 ),
               ],
@@ -432,26 +476,7 @@ class _AdminWhoAmIScreenState extends State<AdminWhoAmIScreen> {
                   ),
                   child: Row(
                     children: [
-                      Container(
-                        width: 76,
-                        height: 76,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.asset(
-                            item.image,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                            const Icon(
-                              Icons.image_not_supported_rounded,
-                              color: AppTheme.primaryColor,
-                            ),
-                          ),
-                        ),
-                      ),
+                      _previewImage(item.image),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -482,16 +507,6 @@ class _AdminWhoAmIScreenState extends State<AdminWhoAmIScreen> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              item.image,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Colors.grey.shade500,
-                                fontSize: 12,
-                              ),
-                            ),
                           ],
                         ),
                       ),
@@ -503,7 +518,6 @@ class _AdminWhoAmIScreenState extends State<AdminWhoAmIScreen> {
                               index: index,
                             );
                           }
-
                           if (value == 'delete') {
                             _deleteItem(index);
                           }
@@ -549,9 +563,7 @@ class _AdminWhoAmIScreenState extends State<AdminWhoAmIScreen> {
         icon: const Icon(Icons.add_rounded),
         label: Text(
           currentTab == 0 ? 'O‘yinchoq qo‘shish' : 'Kasb qo‘shish',
-          style: const TextStyle(
-            fontWeight: FontWeight.w800,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
       ),
     );

@@ -4,6 +4,7 @@ import '../models/gender_info_model.dart';
 import '../theme/app_theme.dart';
 import '../services/gender_info_storage_service.dart';
 import 'gender_info_detail_screen.dart';
+import 'dart:io';
 
 class GenderInfoScreen extends StatefulWidget {
   const GenderInfoScreen({super.key});
@@ -157,7 +158,21 @@ class _GenderInfoScreenState extends State<GenderInfoScreen> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(22),
-                            child: Image.asset(
+                            child: item.isLocalImage
+                                ? Image.file(
+                              File(item.image),
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Center(
+                                  child: Icon(
+                                    Icons.auto_awesome_rounded,
+                                    size: 42,
+                                    color: AppTheme.primaryColor,
+                                  ),
+                                );
+                              },
+                            )
+                                : Image.asset(
                               item.image,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {

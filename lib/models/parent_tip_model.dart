@@ -3,12 +3,14 @@ class ParentTipModel {
   final String image;
   final String shortDescription;
   final String description;
+  final bool isLocalImage;
 
   const ParentTipModel({
     required this.title,
     required this.image,
     required this.shortDescription,
     required this.description,
+    this.isLocalImage = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -17,6 +19,7 @@ class ParentTipModel {
       'image': image,
       'shortDescription': shortDescription,
       'description': description,
+      'isLocalImage': isLocalImage,
     };
   }
 
@@ -26,6 +29,7 @@ class ParentTipModel {
       image: map['image'] ?? '',
       shortDescription: map['shortDescription'] ?? '',
       description: map['description'] ?? '',
+      isLocalImage: map['isLocalImage'] ?? false,
     );
   }
 }

@@ -64,8 +64,8 @@ class HomeMenuCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    width: 44,
-                    height: 44,
+                    width: 42,
+                    height: 42,
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.22),
                       borderRadius: BorderRadius.circular(18),
@@ -81,7 +81,7 @@ class HomeMenuCard extends StatelessWidget {
                     item.title,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 21,
+                      fontSize: 18,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
@@ -92,7 +92,7 @@ class HomeMenuCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 13.5,
+                      fontSize: 11.5,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

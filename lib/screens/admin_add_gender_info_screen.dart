@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/gender_info_model.dart';
 import '../theme/app_theme.dart';
 
@@ -19,24 +21,46 @@ class _AdminAddGenderInfoScreenState extends State<AdminAddGenderInfoScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _imageController = TextEditingController(
-    text: 'assets/images/gender1.png',
-  );
   final TextEditingController _shortDescriptionController =
   TextEditingController();
   final TextEditingController _fullDescriptionController =
   TextEditingController();
   final TextEditingController _authorController = TextEditingController();
 
+  String selectedImagePath = '';
+  bool isPickingImage = false;
+
+  Future<void> pickImage() async {
+    final picker = ImagePicker();
+
+    setState(() {
+      isPickingImage = true;
+    });
+
+    final XFile? file = await picker.pickImage(source: ImageSource.gallery);
+
+    if (!mounted) return;
+
+    setState(() {
+      isPickingImage = false;
+      if (file != null) {
+        selectedImagePath = file.path;
+      }
+    });
+  }
+
   void saveItem() {
     if (!_formKey.currentState!.validate()) return;
 
     final item = GenderInfoModel(
       title: _titleController.text.trim(),
-      image: _imageController.text.trim(),
+      image: selectedImagePath.isEmpty
+          ? 'assets/images/gender1.png'
+          : selectedImagePath,
       shortDescription: _shortDescriptionController.text.trim(),
       fullDescription: _fullDescriptionController.text.trim(),
       author: _authorController.text.trim(),
+      isLocalImage: selectedImagePath.isNotEmpty,
     );
 
     widget.onAdd(item);
@@ -46,7 +70,6 @@ class _AdminAddGenderInfoScreenState extends State<AdminAddGenderInfoScreen> {
   @override
   void dispose() {
     _titleController.dispose();
-    _imageController.dispose();
     _shortDescriptionController.dispose();
     _fullDescriptionController.dispose();
     _authorController.dispose();
@@ -77,6 +100,40 @@ class _AdminAddGenderInfoScreenState extends State<AdminAddGenderInfoScreen> {
     );
   }
 
+  Widget buildImagePreview() {
+    if (isPickingImage) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (selectedImagePath.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: Image.file(
+          File(selectedImagePath),
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: 180,
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      height: 180,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: const Color(0xFFF4F6FA),
+      ),
+      child: const Center(
+        child: Icon(
+          Icons.image_outlined,
+          size: 54,
+          color: AppTheme.primaryColor,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,78 +147,30 @@ class _AdminAddGenderInfoScreenState extends State<AdminAddGenderInfoScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
             children: [
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF7C5CFF),
-                      Color(0xFFB26BFF),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+              buildImagePreview(),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 52,
+                child: ElevatedButton.icon(
+                  onPressed: pickImage,
+                  icon: const Icon(Icons.photo_library_rounded),
+                  label: const Text('Galereyadan rasm tanlash'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
-                  borderRadius: BorderRadius.circular(26),
-                ),
-                child: const Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: Colors.white24,
-                      child: Icon(
-                        Icons.add_comment_rounded,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                    ),
-                    SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Yangi ma’lumot',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 21,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                          SizedBox(height: 6),
-                          Text(
-                            'Gender info ma’lumotlarini kiriting va saqlang',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              height: 1.4,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               TextFormField(
                 controller: _titleController,
                 decoration: _inputDecoration('Sarlavha', Icons.title_rounded),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Sarlavhani kiriting';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _imageController,
-                decoration:
-                _inputDecoration('Rasm manzili', Icons.image_rounded),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Rasm manzilini kiriting';
                   }
                   return null;
                 },
@@ -183,10 +192,8 @@ class _AdminAddGenderInfoScreenState extends State<AdminAddGenderInfoScreen> {
               TextFormField(
                 controller: _fullDescriptionController,
                 maxLines: 8,
-                decoration: _inputDecoration(
-                  'To‘liq ma’lumot',
-                  Icons.article_rounded,
-                ),
+                decoration:
+                _inputDecoration('To‘liq ma’lumot', Icons.article_rounded),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'To‘liq ma’lumot kiriting';
