@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
-import 'theme/app_theme.dart';
 import 'screens/splash_screen.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const KidsPsychApp());
+  runApp(const KidsPsychologyApp());
 }
 
-class KidsPsychApp extends StatelessWidget {
-  const KidsPsychApp({super.key});
+class KidsPsychologyApp extends StatelessWidget {
+  const KidsPsychologyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Bolalar psixologiyasi',
       debugShowCheckedModeBanner: false,
-      title: 'Bolalar Psixologiyasi',
       theme: AppTheme.lightTheme,
       home: const SplashScreen(),
     );

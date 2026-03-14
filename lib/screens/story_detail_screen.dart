@@ -1,7 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/story_model.dart';
 import '../theme/app_theme.dart';
-import 'dart:io';
 
 class StoryDetailScreen extends StatelessWidget {
   final StoryModel story;
@@ -11,14 +11,46 @@ class StoryDetailScreen extends StatelessWidget {
     required this.story,
   });
 
+  Widget _buildStoryImage() {
+    if (story.isLocalImage) {
+      return Image.file(
+        File(story.coverImage),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return const Center(
+            child: Icon(
+              Icons.auto_stories_rounded,
+              size: 90,
+              color: Colors.white,
+            ),
+          );
+        },
+      );
+    }
+
+    return Image.asset(
+      story.coverImage,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return const Center(
+          child: Icon(
+            Icons.auto_stories_rounded,
+            size: 90,
+            color: Colors.white,
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFBF5),
+      backgroundColor: const Color(0xFFFFFBF7),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 310,
+            expandedHeight: 320,
             pinned: true,
             backgroundColor: const Color(0xFF28C2A0),
             flexibleSpace: FlexibleSpaceBar(
@@ -43,43 +75,27 @@ class StoryDetailScreen extends StatelessWidget {
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Color(0xFF28C2A0),
-                          Color(0xFF7EE8C8),
+                          Color(0xFF22C55E),
+                          Color(0xFF86EFAC),
+                          Color(0xFFFFF0C9),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                     ),
                   ),
-                  story.isLocalImage
-                      ? Image.file(
-                    File(story.coverImage),
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Center(
-                        child: Icon(
-                          Icons.auto_stories_rounded,
-                          size: 90,
-                          color: Colors.white,
-                        ),
-                      );
-                    },
-                  )
-                      : Image.asset(
-                    story.coverImage,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Center(
-                        child: Icon(
-                          Icons.auto_stories_rounded,
-                          size: 90,
-                          color: Colors.white,
-                        ),
-                      );
-                    },
-                  ),
+                  _buildStoryImage(),
                   Container(
-                    color: Colors.black.withOpacity(0.18),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.black.withOpacity(0.05),
+                          Colors.black.withOpacity(0.28),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -91,62 +107,33 @@ class StoryDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
+                  Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE8FFF8),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Text(
-                          story.category,
-                          style: const TextStyle(
-                            color: Color(0xFF1D9B80),
-                            fontWeight: FontWeight.w800,
-                            fontSize: 12.5,
-                          ),
-                        ),
+                      _InfoChip(
+                        icon: Icons.category_rounded,
+                        label: story.category,
+                        bgColor: const Color(0xFFE8FFF8),
+                        textColor: const Color(0xFF1D9B80),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF1EDFF),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Text(
-                          '${story.readMinutes} daqiqa o‘qish',
-                          style: const TextStyle(
-                            color: AppTheme.primaryColor,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 12.5,
-                          ),
-                        ),
+                      const SizedBox(width: 10),
+                      _InfoChip(
+                        icon: Icons.schedule_rounded,
+                        label: '${story.readMinutes} min',
+                        bgColor: const Color(0xFFFFF4E8),
+                        textColor: const Color(0xFFFF8A65),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 14),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFFDF8),
-                      borderRadius: BorderRadius.circular(26),
-                      border: Border.all(
-                        color: const Color(0xFFF1E6C8),
-                        width: 1.2,
-                      ),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.brown.withOpacity(0.04),
+                          color: Colors.black.withOpacity(0.05),
                           blurRadius: 14,
                           offset: const Offset(0, 8),
                         ),
@@ -155,15 +142,24 @@ class StoryDetailScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Qisqacha',
-                          style: TextStyle(
-                            fontSize: 19,
-                            fontWeight: FontWeight.w900,
-                            color: AppTheme.textDark,
-                          ),
+                        const Row(
+                          children: [
+                            Icon(
+                              Icons.short_text_rounded,
+                              color: Color(0xFF28C2A0),
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Qisqacha',
+                              style: TextStyle(
+                                fontSize: 19,
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.textDark,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 12),
                         Text(
                           story.shortDescription,
                           style: TextStyle(
@@ -184,12 +180,12 @@ class StoryDetailScreen extends StatelessWidget {
                       color: const Color(0xFFFFFEFB),
                       borderRadius: BorderRadius.circular(28),
                       border: Border.all(
-                        color: const Color(0xFFF1E6C8),
+                        color: const Color(0xFFE8EEF7),
                         width: 1.2,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.brown.withOpacity(0.05),
+                          color: Colors.black.withOpacity(0.05),
                           blurRadius: 16,
                           offset: const Offset(0, 8),
                         ),
@@ -202,7 +198,7 @@ class StoryDetailScreen extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.menu_book_rounded,
-                              color: Color(0xFFB08968),
+                              color: Color(0xFF28C2A0),
                             ),
                             SizedBox(width: 8),
                             Text(
@@ -220,7 +216,7 @@ class StoryDetailScreen extends StatelessWidget {
                           story.content,
                           style: TextStyle(
                             fontSize: 16,
-                            height: 1.95,
+                            height: 1.9,
                             color: Colors.grey.shade800,
                             fontWeight: FontWeight.w600,
                           ),
@@ -233,23 +229,23 @@ class StoryDetailScreen extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF7E8),
+                      color: const Color(0xFFF0FDF4),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: const Color(0xFFFFD778),
+                        color: const Color(0xFFBBF7D0),
                       ),
                     ),
                     child: const Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(
-                          Icons.lightbulb_rounded,
-                          color: Color(0xFFFFA000),
+                          Icons.favorite_rounded,
+                          color: Color(0xFF22C55E),
                         ),
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Maslahat: Ertakni ota-ona bolaga ovoz chiqarib o‘qib bersa, tarbiyaviy ta’siri yanada kuchli bo‘ladi.',
+                            'Maslahat: Ertakni bola bilan birga o‘qib, oxirida mazmuni haqida qisqa suhbat qiling.',
                             style: TextStyle(
                               fontSize: 13.5,
                               height: 1.5,
@@ -261,51 +257,48 @@ class StoryDetailScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 14),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFFF8F1FF),
-                          Color(0xFFFDFBFF),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(22),
-                    ),
-                    child: const Column(
-                      children: [
-                        Icon(
-                          Icons.auto_awesome_rounded,
-                          color: AppTheme.primaryColor,
-                          size: 28,
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Ertak tugadi',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: AppTheme.textDark,
-                          ),
-                        ),
-                        SizedBox(height: 6),
-                        Text(
-                          'Yana boshqa ertaklarni ham o‘qib ko‘ring',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black54,
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color bgColor;
+  final Color textColor;
+
+  const _InfoChip({
+    required this.icon,
+    required this.label,
+    required this.bgColor,
+    required this.textColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: textColor),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w800,
+              color: textColor,
             ),
           ),
         ],

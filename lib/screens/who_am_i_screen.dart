@@ -1,11 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import '../data/who_am_i_data.dart';
 import '../models/diagnostic_result_model.dart';
 import '../models/who_am_i_item_model.dart';
 import '../services/who_am_i_storage_service.dart';
+import '../data/diagnostic_results_data.dart';
 import '../theme/app_theme.dart';
 import 'who_am_i_result_screen.dart';
-import 'dart:io';
 
 class WhoAmIScreen extends StatefulWidget {
   const WhoAmIScreen({super.key});
@@ -164,12 +164,12 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
       )
           : Column(
         children: [
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(18),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: currentStep == 0
@@ -184,15 +184,15 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(26),
+                borderRadius: BorderRadius.circular(22),
                 boxShadow: [
                   BoxShadow(
                     color: (currentStep == 0
                         ? const Color(0xFFFF8A65)
                         : const Color(0xFF5DA9FF))
-                        .withOpacity(0.25),
-                    blurRadius: 18,
-                    offset: const Offset(0, 8),
+                        .withOpacity(0.20),
+                    blurRadius: 14,
+                    offset: const Offset(0, 6),
                   ),
                 ],
               ),
@@ -201,17 +201,17 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                   Row(
                     children: [
                       CircleAvatar(
-                        radius: 28,
+                        radius: 22,
                         backgroundColor: Colors.white24,
                         child: Icon(
                           currentStep == 0
                               ? Icons.toys_rounded
                               : Icons.work_rounded,
                           color: Colors.white,
-                          size: 28,
+                          size: 22,
                         ),
                       ),
-                      const SizedBox(width: 14),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,18 +220,18 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                               stepTitle,
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 21,
+                                fontSize: 17,
                                 fontWeight: FontWeight.w900,
                               ),
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 3),
                             Text(
                               stepSubtitle,
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 13,
+                                fontSize: 11.5,
                                 fontWeight: FontWeight.w600,
-                                height: 1.4,
+                                height: 1.3,
                               ),
                             ),
                           ],
@@ -239,14 +239,14 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 10),
                   Row(
                     children: [
                       Expanded(
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(10),
                           child: LinearProgressIndicator(
-                            minHeight: 10,
+                            minHeight: 8,
                             value: progressValue,
                             backgroundColor: Colors.white24,
                             valueColor:
@@ -256,13 +256,13 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       Text(
                         '${(progressValue * 100).toInt()}%',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
-                          fontSize: 14,
+                          fontSize: 12,
                         ),
                       ),
                     ],
@@ -271,13 +271,13 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 Expanded(
-                  child: _ProgressCard(
+                  child: _CompactProgressCard(
                     title: '1-bosqich',
                     subtitle: 'O‘yinchoqlar',
                     isActive: currentStep == 0,
@@ -285,9 +285,9 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                     color: const Color(0xFFFF8A65),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
-                  child: _ProgressCard(
+                  child: _CompactProgressCard(
                     title: '2-bosqich',
                     subtitle: 'Kasblar',
                     isActive: currentStep == 1,
@@ -298,20 +298,23 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 10,
+              ),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -320,13 +323,14 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                   const Icon(
                     Icons.check_circle_rounded,
                     color: AppTheme.primaryColor,
+                    size: 20,
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Tanlanganlar: $selectedCount ta',
                       style: const TextStyle(
-                        fontSize: 15,
+                        fontSize: 13.5,
                         fontWeight: FontWeight.w800,
                         color: AppTheme.textDark,
                       ),
@@ -337,9 +341,9 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
             ),
           ),
           if (selectedTitles.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             SizedBox(
-              height: 42,
+              height: 34,
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 scrollDirection: Axis.horizontal,
@@ -348,17 +352,17 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                       (title) => Container(
                     margin: const EdgeInsets.only(right: 8),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
+                      horizontal: 10,
+                      vertical: 7,
                     ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF1EDFF),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(18),
                     ),
                     child: Text(
                       title,
                       style: const TextStyle(
-                        fontSize: 12.5,
+                        fontSize: 11.5,
                         fontWeight: FontWeight.w800,
                         color: AppTheme.primaryColor,
                       ),
@@ -369,17 +373,17 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
               ),
             ),
           ],
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Expanded(
             child: GridView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
               itemCount: currentItems.length,
               gridDelegate:
               const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                mainAxisSpacing: 14,
-                crossAxisSpacing: 14,
-                childAspectRatio: 0.84,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 0.93,
               ),
               itemBuilder: (context, index) {
                 final item = currentItems[index];
@@ -391,20 +395,20 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                     duration: const Duration(milliseconds: 220),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(22),
                       border: Border.all(
                         color: selected
                             ? AppTheme.primaryColor
                             : Colors.transparent,
-                        width: 3,
+                        width: 2.5,
                       ),
                       boxShadow: [
                         BoxShadow(
                           color: selected
-                              ? AppTheme.primaryColor.withOpacity(0.16)
-                              : Colors.black.withOpacity(0.06),
-                          blurRadius: 16,
-                          offset: const Offset(0, 8),
+                              ? AppTheme.primaryColor.withOpacity(0.14)
+                              : Colors.black.withOpacity(0.05),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
                         ),
                       ],
                     ),
@@ -412,10 +416,10 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                       children: [
                         Expanded(
                           child: Container(
-                            margin: const EdgeInsets.all(12),
+                            margin: const EdgeInsets.all(10),
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(18),
                               gradient: LinearGradient(
                                 colors: selected
                                     ? [
@@ -429,19 +433,26 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                               ),
                             ),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: item.image.startsWith('/') || item.image.contains(r':\')
+                              borderRadius: BorderRadius.circular(18),
+                              child: item.image.startsWith('/') ||
+                                  item.image.contains(r':\')
                                   ? Image.file(
                                 File(item.image),
                                 fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
+                                errorBuilder: (
+                                    context,
+                                    error,
+                                    stackTrace,
+                                    ) {
                                   return Center(
                                     child: Icon(
                                       currentStep == 0
                                           ? Icons.toys_rounded
                                           : Icons.work_outline_rounded,
-                                      size: 52,
-                                      color: selected ? AppTheme.primaryColor : Colors.orange,
+                                      size: 46,
+                                      color: selected
+                                          ? AppTheme.primaryColor
+                                          : Colors.orange,
                                     ),
                                   );
                                 },
@@ -449,14 +460,20 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                                   : Image.asset(
                                 item.image,
                                 fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
+                                errorBuilder: (
+                                    context,
+                                    error,
+                                    stackTrace,
+                                    ) {
                                   return Center(
                                     child: Icon(
                                       currentStep == 0
                                           ? Icons.toys_rounded
                                           : Icons.work_outline_rounded,
-                                      size: 52,
-                                      color: selected ? AppTheme.primaryColor : Colors.orange,
+                                      size: 46,
+                                      color: selected
+                                          ? AppTheme.primaryColor
+                                          : Colors.orange,
                                     ),
                                   );
                                 },
@@ -466,7 +483,7 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                         ),
                         Padding(
                           padding:
-                          const EdgeInsets.fromLTRB(12, 0, 12, 14),
+                          const EdgeInsets.fromLTRB(10, 0, 10, 12),
                           child: Column(
                             children: [
                               Text(
@@ -475,24 +492,24 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                                 textAlign: TextAlign.center,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 13.5,
                                   fontWeight: FontWeight.w800,
                                   color: AppTheme.textDark,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                               AnimatedContainer(
                                 duration:
                                 const Duration(milliseconds: 180),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 10,
-                                  vertical: 6,
+                                  vertical: 5,
                                 ),
                                 decoration: BoxDecoration(
                                   color: selected
                                       ? AppTheme.primaryColor
                                       : const Color(0xFFF3F4F6),
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(18),
                                 ),
                                 child: Text(
                                   selected ? 'Tanlandi' : 'Tanlash',
@@ -500,7 +517,7 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                                     color: selected
                                         ? Colors.white
                                         : Colors.grey.shade700,
-                                    fontSize: 12,
+                                    fontSize: 11,
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
@@ -516,10 +533,10 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
             child: SizedBox(
               width: double.infinity,
-              height: 58,
+              height: 52,
               child: ElevatedButton(
                 onPressed: nextStepOrFinish,
                 style: ElevatedButton.styleFrom(
@@ -527,7 +544,7 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(18),
                   ),
                 ),
                 child: Text(
@@ -535,7 +552,7 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
                       ? 'Keyingi bosqich'
                       : 'Natijani ko‘rish',
                   style: const TextStyle(
-                    fontSize: 17,
+                    fontSize: 15.5,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -548,14 +565,14 @@ class _WhoAmIScreenState extends State<WhoAmIScreen> {
   }
 }
 
-class _ProgressCard extends StatelessWidget {
+class _CompactProgressCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final bool isActive;
   final bool isDone;
   final Color color;
 
-  const _ProgressCard({
+  const _CompactProgressCard({
     required this.title,
     required this.subtitle,
     required this.isActive,
@@ -567,44 +584,48 @@ class _ProgressCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 220),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: isActive ? color.withOpacity(0.12) : Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        color: isActive ? color.withOpacity(0.10) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isActive ? color : Colors.grey.shade200,
-          width: 1.5,
+          width: 1.2,
         ),
       ),
       child: Row(
         children: [
           CircleAvatar(
-            radius: 16,
+            radius: 13,
             backgroundColor: isDone ? color : Colors.grey.shade200,
             child: Icon(
               isDone ? Icons.check_rounded : Icons.circle_outlined,
-              size: 18,
+              size: 14,
               color: isDone ? Colors.white : Colors.grey.shade500,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 11.5,
                     fontWeight: FontWeight.w800,
                     color: AppTheme.textDark,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 1),
                 Text(
                   subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 10.5,
                     fontWeight: FontWeight.w700,
                     color: Colors.grey.shade700,
                   ),

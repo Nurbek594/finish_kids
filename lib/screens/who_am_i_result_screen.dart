@@ -17,246 +17,31 @@ class WhoAmIResultScreen extends StatelessWidget {
     required this.selectedJobs,
   });
 
-  Color get resultColor {
-    switch (result.level) {
-      case 'low':
-        return const Color(0xFFFF8A65);
-      case 'medium':
-        return const Color(0xFFFFC107);
-      case 'high':
-        return const Color(0xFF28C2A0);
-      default:
-        return AppTheme.primaryColor;
+  Color getColor() {
+    if (result.level == 'low') {
+      return Colors.orange;
     }
-  }
-
-  IconData get resultIcon {
-    switch (result.level) {
-      case 'low':
-        return Icons.sentiment_neutral_rounded;
-      case 'medium':
-        return Icons.lightbulb_rounded;
-      case 'high':
-        return Icons.stars_rounded;
-      default:
-        return Icons.auto_awesome_rounded;
+    if (result.level == 'medium') {
+      return Colors.blue;
     }
+    return Colors.green;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final allTitles = [
-      ...selectedToys.map((e) => e.title),
-      ...selectedJobs.map((e) => e.title),
-    ];
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Diagnostik natija'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(22),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    resultColor,
-                    resultColor.withOpacity(0.70),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: [
-                  BoxShadow(
-                    color: resultColor.withOpacity(0.25),
-                    blurRadius: 18,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 34,
-                    backgroundColor: Colors.white24,
-                    child: Icon(
-                      resultIcon,
-                      size: 34,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    result.title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.18),
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Text(
-                      'Jami ball: $score',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            _InfoCard(
-              title: 'Xulosa',
-              child: Text(
-                result.description,
-                style: TextStyle(
-                  fontSize: 15,
-                  height: 1.7,
-                  color: Colors.grey.shade800,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-            _InfoCard(
-              title: 'Ilmiy eslatma',
-              child: Text(
-                result.scientificNote,
-                style: TextStyle(
-                  fontSize: 14.5,
-                  height: 1.7,
-                  color: Colors.grey.shade800,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-            _InfoCard(
-              title: 'Tanlanganlar',
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: allTitles
-                    .map(
-                      (title) => Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF1EDFF),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.primaryColor,
-                      ),
-                    ),
-                  ),
-                )
-                    .toList(),
-              ),
-            ),
-            const SizedBox(height: 14),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF7E8),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: const Color(0xFFFFD778),
-                ),
-              ),
-              child: const Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.info_rounded,
-                    color: Color(0xFFFFA000),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Eslatma: Ushbu natija klinik tashxis emas. U pedagogik-psixologik kuzatuv uchun yordamchi ko‘rsatkich sifatida taqdim etiladi.',
-                      style: TextStyle(
-                        fontSize: 13.5,
-                        height: 1.5,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.textDark,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.popUntil(context, (route) => route.isFirst);
-                },
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text(
-                  'Qayta boshlash',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppTheme.primaryColor,
-                  side: const BorderSide(
-                    color: AppTheme.primaryColor,
-                    width: 1.4,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  IconData getIcon() {
+    if (result.level == 'low') {
+      return Icons.sentiment_dissatisfied_rounded;
+    }
+    if (result.level == 'medium') {
+      return Icons.sentiment_neutral_rounded;
+    }
+    return Icons.sentiment_very_satisfied_rounded;
   }
-}
 
-class _InfoCard extends StatelessWidget {
-  final String title;
-  final Widget child;
-
-  const _InfoCard({
-    required this.title,
-    required this.child,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildSelectedSection({
+    required String title,
+    required List<WhoAmIItemModel> items,
+    required Color color,
+  }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -265,7 +50,7 @@ class _InfoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 14,
             offset: const Offset(0, 8),
           ),
@@ -274,16 +59,177 @@ class _InfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.w900,
-              color: AppTheme.textDark,
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: color.withOpacity(0.12),
+                child: Icon(
+                  title.contains('O‘yinchoq')
+                      ? Icons.toys_rounded
+                      : Icons.work_rounded,
+                  color: color,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w900,
+                  color: AppTheme.textDark,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          if (items.isEmpty)
+            Text(
+              'Tanlanmagan',
+              style: TextStyle(
+                fontSize: 13.5,
+                color: Colors.grey.shade700,
+                fontWeight: FontWeight.w700,
+              ),
+            )
+          else
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: items
+                  .map(
+                    (item) => Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.10),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    item.title,
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w800,
+                      color: color,
+                    ),
+                  ),
+                ),
+              )
+                  .toList(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = getColor();
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFFFFBF7),
+      appBar: AppBar(
+        title: const Text("Diagnostik natija"),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  color,
+                  color.withOpacity(0.65),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  getIcon(),
+                  size: 80,
+                  color: Colors.white,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  result.title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Ball: $score',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 10),
-          child,
+          const SizedBox(height: 18),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(26),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 14,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Text(
+              result.description,
+              style: TextStyle(
+                fontSize: 15,
+                height: 1.7,
+                color: Colors.grey.shade800,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEFF6FF),
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: Text(
+              result.scientificNote,
+              style: const TextStyle(
+                fontSize: 14,
+                height: 1.55,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textDark,
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          _buildSelectedSection(
+            title: 'Tanlangan o‘yinchoqlar',
+            items: selectedToys,
+            color: const Color(0xFFFF8A65),
+          ),
+          const SizedBox(height: 14),
+          _buildSelectedSection(
+            title: 'Tanlangan kasblar',
+            items: selectedJobs,
+            color: const Color(0xFF3B82F6),
+          ),
         ],
       ),
     );

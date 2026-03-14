@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
+import '../screens/home_screen.dart';
+import '../theme/app_theme.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -9,11 +11,10 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
+
   late AnimationController _controller;
-  late Animation<double> _logoScaleAnimation;
-  late Animation<double> _textFadeAnimation;
-  late Animation<double> _slideAnimation;
+  late Animation<double> _animation;
 
   @override
   void initState() {
@@ -21,52 +22,27 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1800),
+      duration: const Duration(seconds: 2),
     );
 
-    _logoScaleAnimation = Tween<double>(
-      begin: 0.72,
-      end: 1.0,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.elasticOut,
-      ),
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
     );
 
-    _textFadeAnimation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.35, 1.0, curve: Curves.easeIn),
-      ),
-    );
+    _controller.repeat(reverse: true);
 
-    _slideAnimation = Tween<double>(
-      begin: 40,
-      end: 0,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOutCubic,
-      ),
-    );
-
-    _controller.forward();
-
-    Future.delayed(const Duration(milliseconds: 3200), () {
-      if (!mounted) return;
-
+    Timer(const Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 700),
-          pageBuilder: (_, animation, __) => FadeTransition(
-            opacity: animation,
-            child: const HomeScreen(),
-          ),
+          transitionDuration: const Duration(milliseconds: 800),
+          pageBuilder: (_, animation, __) {
+            return FadeTransition(
+              opacity: animation,
+              child: const HomeScreen(),
+            );
+          },
         ),
       );
     });
@@ -78,20 +54,14 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
-  Widget _buildFloatingBubble({
-    required double size,
-    required double top,
-    required double left,
-    required Color color,
-  }) {
-    return Positioned(
-      top: top,
-      left: left,
+  Widget floatingCircle(Color color, double size) {
+    return ScaleTransition(
+      scale: _animation,
       child: Container(
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: color,
+          color: color.withOpacity(0.25),
           shape: BoxShape.circle,
         ),
       ),
@@ -100,228 +70,123 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final bool isSmallHeight = size.height < 700;
 
     return Scaffold(
-      body: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-          return Container(
-            width: double.infinity,
-            height: double.infinity,
+      body: Stack(
+        children: [
+
+          /// background
+          Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xFFF9F4FF),
-                  Color(0xFFEFF7FF),
-                  Color(0xFFFFF8EE),
+                  Color(0xFFFFF0C9),
+                  Color(0xFFD9F4FF),
+                  Color(0xFFFFD6E7),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
             ),
-            child: Stack(
+          ),
+
+          /// floating shapes
+          Positioned(
+            top: 80,
+            left: 30,
+            child: floatingCircle(Colors.pink, 90),
+          ),
+
+          Positioned(
+            bottom: 120,
+            right: 40,
+            child: floatingCircle(Colors.blue, 70),
+          ),
+
+          Positioned(
+            bottom: 200,
+            left: 40,
+            child: floatingCircle(Colors.orange, 60),
+          ),
+
+          /// main content
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildFloatingBubble(
-                  size: 180,
-                  top: -30,
-                  left: -30,
-                  color: const Color(0x337C5CFF),
-                ),
-                _buildFloatingBubble(
-                  size: 140,
-                  top: 120,
-                  left: size.width - 120,
-                  color: const Color(0x335DA9FF),
-                ),
-                _buildFloatingBubble(
-                  size: 120,
-                  top: size.height - 220,
-                  left: 20,
-                  color: const Color(0x33FFB84D),
-                ),
-                _buildFloatingBubble(
-                  size: 200,
-                  top: size.height - 170,
-                  left: size.width - 170,
-                  color: const Color(0x3328C2A0),
-                ),
-                SafeArea(
-                  child: Center(
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 28,
-                        vertical: 20,
-                      ),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: size.height * 0.75,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Transform.translate(
-                              offset: Offset(0, _slideAnimation.value * -0.4),
-                              child: Transform.scale(
-                                scale: _logoScaleAnimation.value,
-                                child: Container(
-                                  width: isSmallHeight ? 145 : 170,
-                                  height: isSmallHeight ? 145 : 170,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFF7C5CFF),
-                                        Color(0xFF9A8CFF),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(
-                                          0xFF7C5CFF,
-                                        ).withOpacity(0.28),
-                                        blurRadius: 28,
-                                        offset: const Offset(0, 14),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Container(
-                                        width: isSmallHeight ? 100 : 120,
-                                        height: isSmallHeight ? 100 : 120,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.18),
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.psychology_alt_rounded,
-                                        size: isSmallHeight ? 60 : 72,
-                                        color: Colors.white,
-                                      ),
-                                      Positioned(
-                                        bottom: isSmallHeight ? 18 : 22,
-                                        right: isSmallHeight ? 24 : 28,
-                                        child: Container(
-                                          width: isSmallHeight ? 30 : 36,
-                                          height: isSmallHeight ? 30 : 36,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFFFC371),
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: const Color(
-                                                  0xFFFFC371,
-                                                ).withOpacity(0.35),
-                                                blurRadius: 10,
-                                                offset: const Offset(0, 4),
-                                              ),
-                                            ],
-                                          ),
-                                          child: Icon(
-                                            Icons.favorite_rounded,
-                                            size: isSmallHeight ? 16 : 18,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: isSmallHeight ? 22 : 34),
-                            Opacity(
-                              opacity: _textFadeAnimation.value,
-                              child: Transform.translate(
-                                offset: Offset(0, _slideAnimation.value),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      'Bolalar Psixologiyasi',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: isSmallHeight ? 25 : 30,
-                                        fontWeight: FontWeight.w900,
-                                        color: const Color(0xFF2D3142),
-                                        letterSpacing: 0.2,
-                                      ),
-                                    ),
-                                    SizedBox(height: isSmallHeight ? 8 : 12),
-                                    Text(
-                                      'Bolalar va ota-onalar uchun\nmehrli va foydali ilova',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: isSmallHeight ? 14 : 15.5,
-                                        fontWeight: FontWeight.w600,
-                                        height: 1.6,
-                                        color: Colors.grey.shade700,
-                                      ),
-                                    ),
-                                    SizedBox(height: isSmallHeight ? 18 : 28),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 10,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.8),
-                                        borderRadius: BorderRadius.circular(30),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                            Colors.black.withOpacity(0.04),
-                                            blurRadius: 12,
-                                            offset: const Offset(0, 6),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const SizedBox(
-                                            width: 18,
-                                            height: 18,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2.4,
-                                              valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                Color(0xFF7C5CFF),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            'Yuklanmoqda...',
-                                            style: TextStyle(
-                                              fontSize: isSmallHeight ? 12.8 : 13.5,
-                                              fontWeight: FontWeight.w800,
-                                              color: Colors.grey.shade800,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+
+                /// logo
+                Container(
+                  width: 160,
+                  height: 160,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.12),
+                        blurRadius: 20,
+                      )
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Image.asset(
+                      "assets/images/kids_banner.png",
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
+
+                const SizedBox(height: 24),
+
+                const Text(
+                  "Bolalar psixologiyasi",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    color: AppTheme.textDark,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                Text(
+                  "Bolalar uchun foydali va qiziqarli ilova",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade700,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+
+                const SizedBox(height: 40),
+
+                /// loading bar
+                SizedBox(
+                  width: 180,
+                  child: LinearProgressIndicator(
+                    minHeight: 6,
+                    borderRadius: BorderRadius.circular(20),
+                    backgroundColor: Colors.white,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+
+                Text(
+                  "Yuklanmoqda...",
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade700,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
               ],
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

@@ -217,16 +217,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                         color: const Color(0xFFF7F7FB),
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: const Text(
-                        'Hozircha test uchun:\nlogin: admin\nparol: 12345',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          height: 1.5,
-                          color: AppTheme.textDark,
-                        ),
-                      ),
                     ),
                   ],
                 ),

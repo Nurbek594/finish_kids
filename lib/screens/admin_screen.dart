@@ -9,12 +9,14 @@ import '../models/parent_tip_model.dart';
 import '../models/story_model.dart';
 import '../models/test_question_model.dart';
 import '../models/who_am_i_item_model.dart';
+import '../services/gender_gallery_storage_service.dart';
 import '../services/gender_info_storage_service.dart';
 import '../services/parent_tip_storage_service.dart';
 import '../services/story_storage_service.dart';
 import '../services/test_storage_service.dart';
 import '../services/who_am_i_storage_service.dart';
 import '../theme/app_theme.dart';
+import 'admin_gender_gallery_screen.dart';
 import 'admin_gender_info_screen.dart';
 import 'admin_parent_tips_screen.dart';
 import 'admin_stories_screen.dart';
@@ -33,6 +35,7 @@ class _AdminScreenState extends State<AdminScreen> {
   bool isLoading = true;
 
   int genderCount = 0;
+  int genderGalleryCount = 0;
   int whoAmICount = 0;
   int storiesCount = 0;
   int tipsCount = 0;
@@ -47,6 +50,8 @@ class _AdminScreenState extends State<AdminScreen> {
   Future<void> _loadStats() async {
     final List<GenderInfoModel>? savedGenderInfos =
     await GenderInfoStorageService.loadGenderInfos();
+
+    final savedGallery = await GenderGalleryStorageService.loadImages();
 
     final List<StoryModel>? savedStories =
     await StoryStorageService.loadStories();
@@ -73,6 +78,7 @@ class _AdminScreenState extends State<AdminScreen> {
 
     setState(() {
       genderCount = (savedGenderInfos ?? genderInfoList).length;
+      genderGalleryCount = savedGallery.length;
       storiesCount = (savedStories ?? storiesList).length;
       tipsCount = (savedTips ?? parentTips).length;
       whoAmICount = savedToys.length + savedJobs.length;
@@ -92,6 +98,13 @@ class _AdminScreenState extends State<AdminScreen> {
         icon: Icons.psychology_alt_rounded,
         color1: const Color(0xFF7C5CFF),
         color2: const Color(0xFFB26BFF),
+      ),
+      _AdminMenuItem(
+        title: 'Gender rasmlar',
+        subtitle: 'Gender bo‘limidagi rasmlarni boshqarish',
+        icon: Icons.photo_library_rounded,
+        color1: const Color(0xFF9B5DE5),
+        color2: const Color(0xFFF15BB5),
       ),
       _AdminMenuItem(
         title: 'Men kimman?',
@@ -131,6 +144,12 @@ class _AdminScreenState extends State<AdminScreen> {
         color: const Color(0xFF7C5CFF),
       ),
       _StatItem(
+        title: 'Gender rasmlar',
+        value: genderGalleryCount.toString(),
+        icon: Icons.photo_library_rounded,
+        color: const Color(0xFF9B5DE5),
+      ),
+      _StatItem(
         title: 'Men kimman',
         value: whoAmICount.toString(),
         icon: Icons.child_care_rounded,
@@ -165,12 +184,17 @@ class _AdminScreenState extends State<AdminScreen> {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => AdminSettingsScreen(),
+                  builder: (_) => const AdminSettingsScreen(),
                 ),
               );
               await _loadStats();
             },
             icon: const Icon(Icons.settings_rounded),
+          ),
+          IconButton(
+            onPressed: isLoading ? null : _loadStats,
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Yangilash',
           ),
         ],
       ),
@@ -283,7 +307,7 @@ class _AdminScreenState extends State<AdminScreen> {
               ),
               const SizedBox(height: 12),
               SizedBox(
-                height: 130,
+                height: 112,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: stats.length,
@@ -378,17 +402,25 @@ class _AdminScreenState extends State<AdminScreen> {
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const AdminWhoAmIScreen(),
+                            builder: (_) =>
+                            const AdminGenderGalleryScreen(),
                           ),
                         );
                       } else if (index == 2) {
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const AdminStoriesScreen(),
+                            builder: (_) => const AdminWhoAmIScreen(),
                           ),
                         );
                       } else if (index == 3) {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AdminStoriesScreen(),
+                          ),
+                        );
+                      } else if (index == 4) {
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -396,7 +428,7 @@ class _AdminScreenState extends State<AdminScreen> {
                             const AdminParentTipsScreen(),
                           ),
                         );
-                      } else if (index == 4) {
+                      } else if (index == 5) {
                         await Navigator.push(
                           context,
                           MaterialPageRoute(

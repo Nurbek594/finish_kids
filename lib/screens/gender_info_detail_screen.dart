@@ -1,7 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/gender_info_model.dart';
 import '../theme/app_theme.dart';
-import 'dart:io';
 
 class GenderInfoDetailScreen extends StatelessWidget {
   final GenderInfoModel item;
@@ -11,13 +11,46 @@ class GenderInfoDetailScreen extends StatelessWidget {
     required this.item,
   });
 
+  Widget _buildImage() {
+    if (item.isLocalImage) {
+      return Image.file(
+        File(item.image),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return const Center(
+            child: Icon(
+              Icons.psychology_alt_rounded,
+              size: 90,
+              color: Colors.white,
+            ),
+          );
+        },
+      );
+    }
+
+    return Image.asset(
+      item.image,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return const Center(
+          child: Icon(
+            Icons.psychology_alt_rounded,
+            size: 90,
+            color: Colors.white,
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFFFBF7),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 280,
+            expandedHeight: 320,
             pinned: true,
             backgroundColor: AppTheme.primaryColor,
             flexibleSpace: FlexibleSpaceBar(
@@ -42,29 +75,27 @@ class GenderInfoDetailScreen extends StatelessWidget {
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Color(0xFF7C5CFF),
-                          Color(0xFFB26BFF),
+                          Color(0xFF8B5CF6),
+                          Color(0xFFC084FC),
+                          Color(0xFFD9F4FF),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                     ),
                   ),
-                  item.isLocalImage
-                      ? Image.file(
-                    File(item.image),
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: 240,
-                  )
-                      : Image.asset(
-                    item.image,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: 240,
-                  ),
+                  _buildImage(),
                   Container(
-                    color: Colors.black.withOpacity(0.15),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.black.withOpacity(0.05),
+                          Colors.black.withOpacity(0.30),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -72,87 +103,161 @@ class GenderInfoDetailScreen extends StatelessWidget {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
+              padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF1EDFF),
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(24),
                     ),
-                    child: Text(
-                      item.author,
-                      style: const TextStyle(
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 12.5,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  const Text(
-                    'Qisqacha mazmun',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                      color: AppTheme.textDark,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    item.shortDescription,
-                    style: TextStyle(
-                      fontSize: 15,
-                      height: 1.6,
-                      color: Colors.grey.shade800,
-                      fontWeight: FontWeight.w600,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.person_rounded,
+                          size: 16,
+                          color: AppTheme.primaryColor,
+                        ),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            item.author,
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w800,
+                              color: AppTheme.primaryColor,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Batafsil',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                      color: AppTheme.textDark,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    item.fullDescription,
-                    style: TextStyle(
-                      fontSize: 15.5,
-                      height: 1.75,
-                      color: Colors.grey.shade800,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 14),
                   Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 14,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(
+                              Icons.short_text_rounded,
+                              color: AppTheme.primaryColor,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Qisqacha',
+                              style: TextStyle(
+                                fontSize: 19,
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.textDark,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          item.shortDescription,
+                          style: TextStyle(
+                            fontSize: 15,
+                            height: 1.65,
+                            color: Colors.grey.shade800,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFFEFB),
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(
+                        color: const Color(0xFFE8EEF7),
+                        width: 1.2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 16,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(
+                              Icons.article_rounded,
+                              color: AppTheme.primaryColor,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'To‘liq ma’lumot',
+                              style: TextStyle(
+                                fontSize: 19,
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.textDark,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          item.fullDescription,
+                          style: TextStyle(
+                            fontSize: 16,
+                            height: 1.9,
+                            color: Colors.grey.shade800,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF7E8),
+                      color: const Color(0xFFEFF6FF),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: const Color(0xFFFFD778),
+                        color: const Color(0xFFBFDBFE),
                       ),
                     ),
                     child: const Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(
-                          Icons.info_rounded,
-                          color: Color(0xFFFFA000),
+                          Icons.lightbulb_rounded,
+                          color: Color(0xFF2563EB),
                         ),
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Eslatma: Bu bo‘limdagi ma’lumotlar pedagogik va tushuntiruvchi xarakterga ega. Ular klinik tashxis o‘rnini bosmaydi.',
+                            'Maslahat: Bu ma’lumotni bola yoshi va psixologik rivojlanish bosqichini hisobga olib tushuntirish foydali bo‘ladi.',
                             style: TextStyle(
                               fontSize: 13.5,
                               height: 1.5,

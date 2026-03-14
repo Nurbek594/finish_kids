@@ -1,10 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../data/stories_data.dart';
 import '../models/story_model.dart';
-import '../theme/app_theme.dart';
 import '../services/story_storage_service.dart';
+import '../theme/app_theme.dart';
 import 'story_detail_screen.dart';
-import 'dart:io';
 
 class StoriesScreen extends StatefulWidget {
   const StoriesScreen({super.key});
@@ -13,18 +13,24 @@ class StoriesScreen extends StatefulWidget {
   State<StoriesScreen> createState() => _StoriesScreenState();
 }
 
-class _StoriesScreenState extends State<StoriesScreen> {
+class _StoriesScreenState extends State<StoriesScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
 
   String selectedCategory = 'Barchasi';
   String searchText = '';
   bool isLoading = true;
 
+  late final AnimationController _controller;
   List<StoryModel> allStories = [];
 
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..forward();
     _loadStories();
   }
 
@@ -66,6 +72,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -105,76 +112,115 @@ class _StoriesScreenState extends State<StoriesScreen> {
     );
   }
 
+  Widget _buildStoryImage(StoryModel story) {
+    if (story.isLocalImage) {
+      return Image.file(
+        File(story.coverImage),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return const Center(
+            child: Icon(
+              Icons.auto_stories_rounded,
+              size: 50,
+              color: Color(0xFF28C2A0),
+            ),
+          );
+        },
+      );
+    }
+
+    return Image.asset(
+      story.coverImage,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return const Center(
+          child: Icon(
+            Icons.auto_stories_rounded,
+            size: 50,
+            color: Color(0xFF28C2A0),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final items = filteredStories;
 
     return Scaffold(
+      backgroundColor: const Color(0xFFFFFBF7),
       appBar: AppBar(
         title: const Text('Ertaklar'),
       ),
       body: isLoading
-          ? const Center(
-        child: CircularProgressIndicator(),
-      )
-          : Column(
-        children: [
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
+          ? const Center(child: CircularProgressIndicator())
+          : FadeTransition(
+        opacity: CurvedAnimation(
+          parent: _controller,
+          curve: Curves.easeOut,
+        ),
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
+          children: [
+            Container(
               width: double.infinity,
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [
-                    Color(0xFF28C2A0),
-                    Color(0xFF7EE8C8),
+                    Color(0xFFB9FBC0),
+                    Color(0xFF98F5E1),
+                    Color(0xFFFFF0C9),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(26),
+                borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF28C2A0).withOpacity(0.25),
-                    blurRadius: 18,
+                    color: Colors.green.withOpacity(0.10),
+                    blurRadius: 16,
                     offset: const Offset(0, 8),
                   ),
                 ],
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundColor: Colors.white24,
-                    child: Icon(
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.65),
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: const Icon(
                       Icons.menu_book_rounded,
-                      color: Colors.white,
-                      size: 28,
+                      size: 38,
+                      color: Color(0xFF22C55E),
                     ),
                   ),
-                  SizedBox(width: 14),
-                  Expanded(
+                  const SizedBox(width: 14),
+                  const Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Sehrli ertaklar',
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 21,
+                            fontSize: 23,
                             fontWeight: FontWeight.w900,
+                            color: AppTheme.textDark,
                           ),
                         ),
-                        SizedBox(height: 6),
+                        SizedBox(height: 8),
                         Text(
-                          'Bolalar uchun mazmunli va tarbiyaviy ertaklar kutubxonasi',
+                          'Qiziqarli, tarbiyaviy va bolalarga mos ertaklar kutubxonasi',
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
+                            fontSize: 13.5,
                             fontWeight: FontWeight.w600,
-                            height: 1.4,
+                            color: AppTheme.textDark,
+                            height: 1.45,
                           ),
                         ),
                       ],
@@ -183,14 +229,11 @@ class _StoriesScreenState extends State<StoriesScreen> {
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 14),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
+            const SizedBox(height: 16),
+            Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),
@@ -232,73 +275,66 @@ class _StoriesScreenState extends State<StoriesScreen> {
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 14),
-          SizedBox(
-            height: 42,
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              scrollDirection: Axis.horizontal,
-              children: categories.map(_buildCategoryChip).toList(),
+            const SizedBox(height: 14),
+            SizedBox(
+              height: 42,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: categories.map(_buildCategoryChip).toList(),
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Text(
-                  '${items.length} ta ertak topildi',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.textDark,
+            const SizedBox(height: 14),
+            Text(
+              '${items.length} ta ertak topildi',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.textDark,
+              ),
+            ),
+            const SizedBox(height: 10),
+            items.isEmpty
+                ? Container(
+              margin: const EdgeInsets.only(top: 24),
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Column(
+                children: [
+                  const Icon(
+                    Icons.search_off_rounded,
+                    size: 56,
+                    color: Colors.grey,
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: items.isEmpty
-                ? Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.search_off_rounded,
-                      size: 60,
-                      color: Colors.grey,
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Ertak topilmadi',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.textDark,
                     ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Ertak topilmadi',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        color: AppTheme.textDark,
-                      ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Boshqa so‘z bilan qidirib ko‘ring yoki kategoriyani o‘zgartiring',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      height: 1.5,
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Boshqa so‘z bilan qidirib ko‘ring yoki kategoriyani o‘zgartiring',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 13.5,
-                        height: 1.5,
-                        color: Colors.grey.shade700,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             )
                 : GridView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
               itemCount: items.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               gridDelegate:
               const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
@@ -351,33 +387,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
                             child: ClipRRect(
                               borderRadius:
                               BorderRadius.circular(20),
-                              child: story.isLocalImage
-                                  ? Image.file(
-                                File(story.coverImage),
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Center(
-                                    child: Icon(
-                                      Icons.auto_stories_rounded,
-                                      size: 50,
-                                      color: Color(0xFF28C2A0),
-                                    ),
-                                  );
-                                },
-                              )
-                                  : Image.asset(
-                                story.coverImage,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Center(
-                                    child: Icon(
-                                      Icons.auto_stories_rounded,
-                                      size: 50,
-                                      color: Color(0xFF28C2A0),
-                                    ),
-                                  );
-                                },
-                              ),
+                              child: _buildStoryImage(story),
                             ),
                           ),
                         ),
@@ -459,8 +469,8 @@ class _StoriesScreenState extends State<StoriesScreen> {
                 );
               },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
