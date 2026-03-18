@@ -20,14 +20,18 @@ class _GenderInfoScreenState extends State<GenderInfoScreen>
   List<GenderInfoModel> localGenderInfos = [];
   bool isLoading = true;
   int galleryCount = 0;
+  int currentPage = 0;
+
   late final AnimationController _controller;
+  late final PageController _pageController;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(viewportFraction: 0.90);
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 700),
     )..forward();
     _loadGenderInfos();
   }
@@ -43,12 +47,16 @@ class _GenderInfoScreenState extends State<GenderInfoScreen>
           savedItems ?? List<GenderInfoModel>.from(genderInfoList);
       galleryCount = galleryItems.length;
       isLoading = false;
+      if (currentPage >= localGenderInfos.length && localGenderInfos.isNotEmpty) {
+        currentPage = localGenderInfos.length - 1;
+      }
     });
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -61,7 +69,7 @@ class _GenderInfoScreenState extends State<GenderInfoScreen>
           return const Center(
             child: Icon(
               Icons.auto_awesome_rounded,
-              size: 42,
+              size: 52,
               color: AppTheme.primaryColor,
             ),
           );
@@ -76,11 +84,80 @@ class _GenderInfoScreenState extends State<GenderInfoScreen>
         return const Center(
           child: Icon(
             Icons.auto_awesome_rounded,
-            size: 42,
+            size: 52,
             color: AppTheme.primaryColor,
           ),
         );
       },
+    );
+  }
+
+  Widget _buildTopHeader() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xFFE9D5FF),
+            Color(0xFFD9F4FF),
+            Color(0xFFFCE7F3),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.purple.withOpacity(0.10),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.65),
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: const Icon(
+              Icons.psychology_alt_rounded,
+              size: 38,
+              color: Color(0xFF8B5CF6),
+            ),
+          ),
+          const SizedBox(width: 14),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Gender identifikatsiya',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: AppTheme.textDark,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Olimlar fikri va foydali tushunchalarni qulay cardlar orqali o‘rganing',
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textDark,
+                    height: 1.45,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -165,37 +242,66 @@ class _GenderInfoScreenState extends State<GenderInfoScreen>
     );
   }
 
-  Widget _buildInfoCard(GenderInfoModel item) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => GenderInfoDetailScreen(item: item),
-          ),
-        );
-      },
+  Widget _buildCardCounter(int index, int total) {
+    return Positioned(
+      top: 12,
+      right: 12,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 14,
-              offset: const Offset(0, 8),
-            ),
-          ],
+          color: Colors.black.withOpacity(0.35),
+          borderRadius: BorderRadius.circular(18),
         ),
-        child: Row(
+        child: Text(
+          '${index + 1}/$total',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPageCard(GenderInfoModel item, int index) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      margin: EdgeInsets.only(
+        right: 12,
+        left: index == 0 ? 0 : 2,
+        top: 4,
+        bottom: 4,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.07),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(28),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => GenderInfoDetailScreen(item: item),
+            ),
+          );
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 110,
-              height: 110,
+              height: 280,
               margin: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(24),
                 gradient: const LinearGradient(
                   colors: [
                     Color(0xFFEDE9FF),
@@ -203,74 +309,71 @@ class _GenderInfoScreenState extends State<GenderInfoScreen>
                   ],
                 ),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(22),
-                child: _buildImage(item),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: _buildImage(item),
+                    ),
+                  ),
+                  _buildCardCounter(index, localGenderInfos.length),
+                ],
               ),
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  top: 14,
-                  right: 14,
-                  bottom: 14,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: AppTheme.textDark,
-                      ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.textDark,
+                      height: 1.2,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      item.shortDescription,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 13.2,
-                        height: 1.4,
-                        color: Colors.grey.shade700,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    item.shortDescription,
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14,
+                      height: 1.55,
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF1EDFF),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Text(
-                            item.author,
-                            style: const TextStyle(
-                              fontSize: 11.5,
-                              color: AppTheme.primaryColor,
-                              fontWeight: FontWeight.w800,
-                            ),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 7,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1EDFF),
+                          borderRadius: BorderRadius.circular(22),
+                        ),
+                        child: Text(
+                          item.author,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.primaryColor,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
-                        const Spacer(),
-                        const Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          size: 16,
-                          color: AppTheme.primaryColor,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
@@ -279,71 +382,25 @@ class _GenderInfoScreenState extends State<GenderInfoScreen>
     );
   }
 
-  Widget _buildTopHeader() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFFE9D5FF),
-            Color(0xFFD9F4FF),
-            Color(0xFFFCE7F3),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+  Widget _buildPageIndicator() {
+    if (localGenderInfos.isEmpty) return const SizedBox.shrink();
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(
+        localGenderInfos.length,
+            (index) => AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: currentPage == index ? 18 : 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: currentPage == index
+                ? AppTheme.primaryColor
+                : const Color(0xFFD9D9E3),
+            borderRadius: BorderRadius.circular(20),
+          ),
         ),
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.purple.withOpacity(0.10),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.65),
-              borderRadius: BorderRadius.circular(22),
-            ),
-            child: const Icon(
-              Icons.psychology_alt_rounded,
-              size: 38,
-              color: Color(0xFF8B5CF6),
-            ),
-          ),
-          const SizedBox(width: 14),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Foydali ma’lumotlar',
-                  style: TextStyle(
-                    fontSize: 23,
-                    fontWeight: FontWeight.w900,
-                    color: AppTheme.textDark,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Olimlar fikri, pedagogik eslatmalar va tushunchalarni sodda tarzda o‘rganing',
-                  style: TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textDark,
-                    height: 1.45,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -421,8 +478,37 @@ class _GenderInfoScreenState extends State<GenderInfoScreen>
               const SizedBox(height: 18),
               if (localGenderInfos.isEmpty)
                 _buildEmptyInfoState()
-              else
-                ...localGenderInfos.map(_buildInfoCard),
+              else ...[
+                const Padding(
+                  padding: EdgeInsets.only(left: 2, bottom: 12),
+                  child: Text(
+                    'Kartalarni yon tomonga suring',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.textDark,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 470,
+                  child: PageView.builder(
+                    controller: _pageController,
+                    itemCount: localGenderInfos.length,
+                    onPageChanged: (value) {
+                      setState(() {
+                        currentPage = value;
+                      });
+                    },
+                    itemBuilder: (context, index) {
+                      final item = localGenderInfos[index];
+                      return _buildPageCard(item, index);
+                    },
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _buildPageIndicator(),
+              ],
             ],
           ),
         ),

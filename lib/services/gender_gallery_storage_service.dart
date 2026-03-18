@@ -22,8 +22,11 @@ class GenderGalleryStorageService {
 
     final List<dynamic> decoded = jsonDecode(jsonString);
     return decoded
-        .map((e) =>
-        GenderGalleryImageModel.fromMap(Map<String, dynamic>.from(e)))
+        .map(
+          (e) => GenderGalleryImageModel.fromMap(
+        Map<String, dynamic>.from(e),
+      ),
+    )
         .toList();
   }
 

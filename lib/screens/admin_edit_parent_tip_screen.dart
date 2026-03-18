@@ -6,7 +6,7 @@ import '../theme/app_theme.dart';
 
 class AdminEditParentTipScreen extends StatefulWidget {
   final ParentTipModel tip;
-  final Function(ParentTipModel) onSave;
+  final void Function(ParentTipModel) onSave;
 
   const AdminEditParentTipScreen({
     super.key,
@@ -20,10 +20,6 @@ class AdminEditParentTipScreen extends StatefulWidget {
 }
 
 class _AdminEditParentTipScreenState extends State<AdminEditParentTipScreen> {
-  late TextEditingController titleController;
-  late TextEditingController shortDescriptionController;
-  late TextEditingController descriptionController;
-
   late String selectedImagePath;
   late bool isLocalImage;
   bool isPickingImage = false;
@@ -31,11 +27,6 @@ class _AdminEditParentTipScreenState extends State<AdminEditParentTipScreen> {
   @override
   void initState() {
     super.initState();
-
-    titleController = TextEditingController(text: widget.tip.title);
-    shortDescriptionController =
-        TextEditingController(text: widget.tip.shortDescription);
-    descriptionController = TextEditingController(text: widget.tip.description);
     selectedImagePath = widget.tip.image;
     isLocalImage = widget.tip.isLocalImage;
   }
@@ -61,11 +52,19 @@ class _AdminEditParentTipScreenState extends State<AdminEditParentTipScreen> {
   }
 
   void save() {
+    if (selectedImagePath.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Rasm tanlang'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
     final editedTip = ParentTipModel(
-      title: titleController.text.trim(),
       image: selectedImagePath,
-      shortDescription: shortDescriptionController.text.trim(),
-      description: descriptionController.text.trim(),
       isLocalImage: isLocalImage,
     );
 
@@ -81,15 +80,15 @@ class _AdminEditParentTipScreenState extends State<AdminEditParentTipScreen> {
     if (selectedImagePath.isEmpty) {
       return Container(
         width: double.infinity,
-        height: 180,
+        height: 260,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(22),
           color: const Color(0xFFF4F6FA),
         ),
         child: const Center(
           child: Icon(
             Icons.image_outlined,
-            size: 54,
+            size: 56,
             color: AppTheme.primaryColor,
           ),
         ),
@@ -98,34 +97,34 @@ class _AdminEditParentTipScreenState extends State<AdminEditParentTipScreen> {
 
     if (isLocalImage) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(22),
         child: Image.file(
           File(selectedImagePath),
           fit: BoxFit.cover,
           width: double.infinity,
-          height: 180,
+          height: 260,
         ),
       );
     }
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(22),
       child: Image.asset(
         selectedImagePath,
         fit: BoxFit.cover,
         width: double.infinity,
-        height: 180,
+        height: 260,
         errorBuilder: (_, __, ___) => Container(
           width: double.infinity,
-          height: 180,
+          height: 260,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(22),
             color: const Color(0xFFF4F6FA),
           ),
           child: const Center(
             child: Icon(
               Icons.broken_image_outlined,
-              size: 54,
+              size: 56,
               color: AppTheme.primaryColor,
             ),
           ),
@@ -134,85 +133,88 @@ class _AdminEditParentTipScreenState extends State<AdminEditParentTipScreen> {
     );
   }
 
-  InputDecoration input(String label) {
-    return InputDecoration(
-      labelText: label,
-      filled: true,
-      fillColor: Colors.white,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide.none,
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    titleController.dispose();
-    shortDescriptionController.dispose();
-    descriptionController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFFFBF7),
       appBar: AppBar(
-        title: const Text("Tavsiyani tahrirlash"),
+        title: const Text('Rasmni tahrirlash'),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
         children: [
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFF5DA9FF),
+                  Color(0xFF8ED2FF),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(26),
+            ),
+            child: const Row(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: Colors.white24,
+                  child: Icon(
+                    Icons.edit_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
+                SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    'Ota-onalar bo‘limidagi rasmni yangilash',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
           buildImagePreview(),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           SizedBox(
-            height: 52,
+            height: 54,
             child: ElevatedButton.icon(
               onPressed: pickImage,
               icon: const Icon(Icons.photo_library_rounded),
-              label: const Text('Galereyadan yangi rasm tanlash'),
+              label: const Text('Yangi rasm tanlash'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(18),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: titleController,
-            decoration: input("Tavsiya nomi"),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: shortDescriptionController,
-            decoration: input("Qisqa tavsif"),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: descriptionController,
-            maxLines: 8,
-            decoration: input("To‘liq tavsiya"),
-          ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
           SizedBox(
-            height: 55,
-            child: ElevatedButton(
+            height: 56,
+            child: ElevatedButton.icon(
               onPressed: save,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
+              icon: const Icon(Icons.save_rounded),
+              label: const Text(
+                'Saqlash',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
                 ),
               ),
-              child: const Text(
-                "Saqlash",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.white,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
                 ),
               ),
             ),

@@ -26,16 +26,7 @@ class ParentTipDetailScreen extends StatelessWidget {
                 horizontal: 16,
                 vertical: 14,
               ),
-              title: Text(
-                tip.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-              ),
+
               background: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -117,15 +108,7 @@ class ParentTipDetailScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        Text(
-                          tip.shortDescription,
-                          style: TextStyle(
-                            fontSize: 15,
-                            height: 1.65,
-                            color: Colors.grey.shade800,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+
                       ],
                     ),
                   ),
@@ -169,15 +152,7 @@ class ParentTipDetailScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        Text(
-                          tip.description,
-                          style: TextStyle(
-                            fontSize: 16,
-                            height: 1.9,
-                            color: Colors.grey.shade800,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+
                       ],
                     ),
                   ),

@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../models/gender_gallery_image_model.dart';
 import '../services/gender_gallery_storage_service.dart';
 import '../theme/app_theme.dart';
+import '../data/gender_gallery_default_data.dart';
 
 class AdminGenderGalleryScreen extends StatefulWidget {
   const AdminGenderGalleryScreen({super.key});
@@ -29,7 +30,9 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
     if (!mounted) return;
 
     setState(() {
-      images = saved;
+      images = saved.isEmpty
+          ? List<GenderGalleryImageModel>.from(defaultGenderGalleryImages)
+          : saved;
       isLoading = false;
     });
   }
@@ -44,14 +47,14 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
     return file?.path;
   }
 
-  Widget _previewImage(String imagePath, {double size = 80}) {
+  Widget _previewImage(String imagePath, {double size = 88}) {
     if (imagePath.isEmpty) {
       return Container(
         width: size,
         height: size,
         decoration: BoxDecoration(
           color: const Color(0xFFF3F4F6),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
         ),
         child: const Icon(
           Icons.image_outlined,
@@ -67,10 +70,10 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
       height: size,
       decoration: BoxDecoration(
         color: const Color(0xFFF3F4F6),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         child: isLocal
             ? Image.file(
           File(imagePath),
@@ -92,12 +95,10 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
     );
   }
 
-  void _showAddDialog() {
-    final titleController = TextEditingController();
-    final descriptionController = TextEditingController();
+  Future<void> _showAddDialog() async {
     String selectedImagePath = '';
 
-    showDialog(
+    await showDialog(
       context: context,
       builder: (dialogContext) {
         return StatefulBuilder(
@@ -106,9 +107,10 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
               title: const Text('Yangi rasm qo‘shish'),
               content: SingleChildScrollView(
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    _previewImage(selectedImagePath, size: 100),
-                    const SizedBox(height: 12),
+                    _previewImage(selectedImagePath, size: 120),
+                    const SizedBox(height: 14),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
@@ -124,17 +126,6 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
                         label: const Text('Rasm tanlash'),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: titleController,
-                      decoration: const InputDecoration(labelText: 'Sarlavha'),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: descriptionController,
-                      maxLines: 3,
-                      decoration: const InputDecoration(labelText: 'Izoh'),
-                    ),
                   ],
                 ),
               ),
@@ -145,15 +136,12 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    if (selectedImagePath.isEmpty ||
-                        titleController.text.trim().isEmpty) {
-                      return;
-                    }
+                    if (selectedImagePath.isEmpty) return;
 
                     final item = GenderGalleryImageModel(
                       imagePath: selectedImagePath,
-                      title: titleController.text.trim(),
-                      description: descriptionController.text.trim(),
+                      title: '',
+                      description: '',
                       isLocalImage: true,
                     );
 
@@ -167,8 +155,8 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
                     Navigator.pop(dialogContext);
 
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('${item.title} qo‘shildi'),
+                      const SnackBar(
+                        content: Text('Rasm qo‘shildi'),
                         behavior: SnackBarBehavior.floating,
                         backgroundColor: AppTheme.primaryColor,
                       ),
@@ -184,16 +172,13 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
     );
   }
 
-  void _showEditDialog({
+  Future<void> _showEditDialog({
     required GenderGalleryImageModel item,
     required int index,
-  }) {
-    final titleController = TextEditingController(text: item.title);
-    final descriptionController =
-    TextEditingController(text: item.description);
+  }) async {
     String selectedImagePath = item.imagePath;
 
-    showDialog(
+    await showDialog(
       context: context,
       builder: (dialogContext) {
         return StatefulBuilder(
@@ -202,9 +187,10 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
               title: const Text('Rasmni tahrirlash'),
               content: SingleChildScrollView(
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    _previewImage(selectedImagePath, size: 100),
-                    const SizedBox(height: 12),
+                    _previewImage(selectedImagePath, size: 120),
+                    const SizedBox(height: 14),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
@@ -220,17 +206,6 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
                         label: const Text('Yangi rasm tanlash'),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: titleController,
-                      decoration: const InputDecoration(labelText: 'Sarlavha'),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: descriptionController,
-                      maxLines: 3,
-                      decoration: const InputDecoration(labelText: 'Izoh'),
-                    ),
                   ],
                 ),
               ),
@@ -241,10 +216,12 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
+                    if (selectedImagePath.isEmpty) return;
+
                     final updated = GenderGalleryImageModel(
                       imagePath: selectedImagePath,
-                      title: titleController.text.trim(),
-                      description: descriptionController.text.trim(),
+                      title: '',
+                      description: '',
                       isLocalImage: true,
                     );
 
@@ -258,8 +235,8 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
                     Navigator.pop(dialogContext);
 
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('${updated.title} yangilandi'),
+                      const SnackBar(
+                        content: Text('Rasm yangilandi'),
                         behavior: SnackBarBehavior.floating,
                         backgroundColor: AppTheme.primaryColor,
                       ),
@@ -276,8 +253,6 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
   }
 
   Future<void> _deleteItem(int index) async {
-    final item = images[index];
-
     setState(() {
       images.removeAt(index);
     });
@@ -286,8 +261,8 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${item.title} o‘chirildi'),
+      const SnackBar(
+        content: Text('Rasm o‘chirildi'),
         behavior: SnackBarBehavior.floating,
         backgroundColor: Colors.redAccent,
       ),
@@ -296,14 +271,92 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
 
   Future<void> _clearAll() async {
     await GenderGalleryStorageService.clearImages();
-    await _loadImages();
+
+    if (!mounted) return;
+
+    setState(() {
+      images = List<GenderGalleryImageModel>.from(defaultGenderGalleryImages);
+    });
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Barcha rasmlar tozalandi'),
+        content: Text('Rasmlar default holatga qaytdi'),
         behavior: SnackBarBehavior.floating,
         backgroundColor: AppTheme.primaryColor,
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFFE9D5FF),
+              Color(0xFFD9F4FF),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(26),
+        ),
+        child: Row(
+          children: [
+            const CircleAvatar(
+              radius: 28,
+              backgroundColor: Colors.white24,
+              child: Icon(
+                Icons.photo_library_rounded,
+                color: Colors.white,
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Rasmlar boshqaruvi',
+                    style: TextStyle(
+                      color: AppTheme.textDark,
+                      fontSize: 21,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '${images.length} ta rasm mavjud',
+                    style: const TextStyle(
+                      color: AppTheme.textDark,
+                      fontSize: 13,
+                      height: 1.4,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return const Center(
+      child: Text(
+        'Rasmlar mavjud emas',
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w800,
+          color: AppTheme.textDark,
+        ),
       ),
     );
   }
@@ -322,80 +375,17 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
         ],
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+        child: CircularProgressIndicator(),
+      )
           : Column(
         children: [
           const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFFE9D5FF),
-                    Color(0xFFD9F4FF),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(26),
-              ),
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 28,
-                    backgroundColor: Colors.white24,
-                    child: Icon(
-                      Icons.photo_library_rounded,
-                      color: Colors.white,
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Rasmlar boshqaruvi',
-                          style: TextStyle(
-                            color: AppTheme.textDark,
-                            fontSize: 21,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          '${images.length} ta rasm mavjud',
-                          style: const TextStyle(
-                            color: AppTheme.textDark,
-                            fontSize: 13,
-                            height: 1.4,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          _buildHeader(),
           const SizedBox(height: 14),
           Expanded(
             child: images.isEmpty
-                ? const Center(
-              child: Text(
-                'Rasmlar mavjud emas',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.textDark,
-                ),
-              ),
-            )
+                ? _buildEmptyState()
                 : ListView.builder(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
               itemCount: images.length,
@@ -418,35 +408,8 @@ class _AdminGenderGalleryScreenState extends State<AdminGenderGalleryScreen> {
                   ),
                   child: Row(
                     children: [
-                      _previewImage(item.imagePath),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item.title,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                                color: AppTheme.textDark,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              item.description,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Colors.grey.shade700,
-                                fontWeight: FontWeight.w600,
-                                height: 1.4,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      _previewImage(item.imagePath, size: 96),
+                      const Spacer(),
                       PopupMenuButton<String>(
                         onSelected: (value) {
                           if (value == 'edit') {

@@ -316,7 +316,7 @@ Shu bilan Abjir yigit murod-maqsadiga yetibdi.
   ),
   StoryModel(
       title: "XURMACHA POLVON",
-      coverImage: "assets/images/story12.png",
+      coverImage: "assets/images/story14.png",
       shortDescription: "Ertaklar yaxshilikka yetaklar.",
       category: "Aql",
       readMinutes: 13,

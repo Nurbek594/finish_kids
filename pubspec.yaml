@@ -34,4 +34,5 @@ flutter:
 
   assets:
     - assets/images/
-
+    - assets/gender_gallery/
+    - assets/parent_tips/

@@ -1,41 +1,60 @@
 import '../models/parent_tip_model.dart';
 
-const List<ParentTipModel> parentTips = [
+final List<ParentTipModel> parentTips = [
   ParentTipModel(
-    title: "Bolani tinglash",
-    image: "assets/images/tip1.png",
-    shortDescription:
-    "Farzandingizning fikrlarini sabr bilan tinglash juda muhim.",
-    description:
-    "Bolani diqqat bilan tinglash uning o‘ziga bo‘lgan ishonchini oshiradi. "
-        "Agar ota-ona farzandini tinglasa, bola o‘z fikrini erkin ayta boshlaydi. "
-        "Bu esa bolaning psixologik rivojlanishiga ijobiy ta'sir qiladi.",
+    image: 'assets/parent_tips/tip1.png',
+    isLocalImage: false,
   ),
   ParentTipModel(
-    title: "Birga vaqt o'tkazish",
-    image: "assets/images/tip2.png",
-    shortDescription:
-    "Bolalar ota-onasi bilan vaqt o'tkazishni juda yaxshi ko'radi.",
-    description:
-    "Birgalikda o'yin o'ynash, ertak o'qish yoki sayr qilish "
-        "ota-ona va bola o'rtasidagi munosabatni mustahkamlaydi.",
+    image: 'assets/parent_tips/tip2.png',
+    isLocalImage: false,
   ),
   ParentTipModel(
-    title: "Maqtov va rag'bat",
-    image: "assets/images/tip3.png",
-    shortDescription:
-    "Bolani yaxshi ish qilganda maqtash kerak.",
-    description:
-    "Bolani rag'batlantirish uning motivatsiyasini oshiradi. "
-        "Kichik muvaffaqiyatlarni ham e'tiborsiz qoldirmang.",
+    image: 'assets/parent_tips/tip3.png',
+    isLocalImage: false,
   ),
   ParentTipModel(
-    title: "Sabrli bo'lish",
-    image: "assets/images/tip4.png",
-    shortDescription:
-    "Bolalar bilan ishlashda sabr muhim.",
-    description:
-    "Ba'zi vaziyatlarda bola xatoga yo'l qo'yishi mumkin. "
-        "Bunday paytda sabr bilan tushuntirish kerak.",
+    image: 'assets/parent_tips/tip4.png',
+    isLocalImage: false,
+  ),
+  ParentTipModel(
+    image: 'assets/parent_tips/tip5.png',
+    isLocalImage: false,
+  ),
+  ParentTipModel(
+    image: 'assets/parent_tips/tip6.png',
+    isLocalImage: false,
+  ),
+  ParentTipModel(
+    image: 'assets/parent_tips/tip7.png',
+    isLocalImage: false,
+  ),
+  ParentTipModel(
+    image: 'assets/parent_tips/tip8.png',
+    isLocalImage: false,
+  ),
+  ParentTipModel(
+    image: 'assets/parent_tips/tip9.png',
+    isLocalImage: false,
+  ),
+  ParentTipModel(
+    image: 'assets/parent_tips/tip10.png',
+    isLocalImage: false,
+  ),
+  ParentTipModel(
+    image: 'assets/parent_tips/tip11.png',
+    isLocalImage: false,
+  ),
+  ParentTipModel(
+    image: 'assets/parent_tips/tip12.png',
+    isLocalImage: false,
+  ),
+  ParentTipModel(
+    image: 'assets/parent_tips/tip13.png',
+    isLocalImage: false,
+  ),
+  ParentTipModel(
+    image: 'assets/parent_tips/tip14.png',
+    isLocalImage: false,
   ),
 ];

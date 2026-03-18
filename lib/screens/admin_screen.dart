@@ -315,7 +315,7 @@ class _AdminScreenState extends State<AdminScreen> {
                   itemBuilder: (context, index) {
                     final stat = stats[index];
                     return Container(
-                      width: 145,
+                      width: 160,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: Colors.white,
